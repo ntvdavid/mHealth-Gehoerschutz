@@ -2,8 +2,8 @@ import { setWarningFilter } from "react-native/types_generated/Libraries/LogBox/
 
 export const COLORS = {
     background: '#fdfdfd',  //Hintergrund
-    primary: '#151b27', //Textfarbe
-    secondary: '#079d93',   //Buttons
+    text: '#151b27', //Textfarbe
+    primary: '#079d93',   //Buttons
 
     warning: '#e13b3f', //Warnung
     lila: '#9d5ef6',
