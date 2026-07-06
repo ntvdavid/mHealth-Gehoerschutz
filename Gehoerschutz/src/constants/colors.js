@@ -1,4 +1,6 @@
-import { setWarningFilter } from "react-native/types_generated/Libraries/LogBox/Data/LogBoxData";
+//auskommentiert, da sonst Web nicht funktioniert (Import interner React-Native-Dateien auf Web nicht 
+// erlaubt, deshalb bricht Expo ab)
+//import { setWarningFilter } from "react-native/types_generated/Libraries/LogBox/Data/LogBoxData";
 
 export const COLORS = {
     background: '#fdfdfd',  //Hintergrund
