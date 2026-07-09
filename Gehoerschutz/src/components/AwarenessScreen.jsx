@@ -1,10 +1,10 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 
 export default function AwarenessScreen() {
   return (
     <View>
-      <Text>AwarenessScreen Inhalt</Text>
+      <Text>Du bist im Tipps Screen</Text>
     </View>
   );
 }
