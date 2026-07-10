@@ -16,9 +16,7 @@ export default function Header({  onMenuPress, onInfoPress }) {
 
             <Text style={styles.title}>{getGreeting()}</Text>
 
-            <TouchableOpacity onPress={onInfoPress}>
-                <Feather name="info" size={26} color={COLORS.text} />
-            </TouchableOpacity>
+            <View style={{ width: 26 }} />
         </View>
     );
 }

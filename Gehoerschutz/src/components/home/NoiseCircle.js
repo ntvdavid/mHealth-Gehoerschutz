@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { Feather } from "@expo/vector-icons";
 
 import Card from "../cards/Card";
 
@@ -17,6 +18,20 @@ export default function NoiseCircle({ noiseLevel }) {
                 <View style={styles.dbContainer}>
                     <Text style={styles.db}>{noiseLevel}</Text>
                     <Text style={styles.unit}>dB</Text>
+
+                    <TouchableOpacity
+                        style={styles.infoButton}
+                        onPress={() => {
+                            // Hier später Modal öffnen
+                        }}
+                    >
+                        <Feather
+                            name="info"
+                            size={18}
+                            color={COLORS.textSecondary}
+                        />
+                    </TouchableOpacity>
+
                 </View>
 
                 <Text style={[styles.status, { color: status.color }]}>
@@ -27,7 +42,6 @@ export default function NoiseCircle({ noiseLevel }) {
                     Aktuelle Lautstärke
                 </Text>
             </View>
-
         </Card>
     );
 }
@@ -52,6 +66,11 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "flex-end",
         gap: 4,
+    },
+    infoButton: {
+        position: "absolute",
+        right: -20,
+        top: 4,
     },
     db: {
         ...TYPOGRAPHY.h1,
