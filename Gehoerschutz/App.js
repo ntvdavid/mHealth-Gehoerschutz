@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  Alert,
+  Button,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -11,6 +11,7 @@ import {
   SafeAreaView,
 } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
+import { useKeepAwake } from 'expo-keep-awake';
 
 import HomeScreen from './src/screens/HomeScreen';
 
@@ -23,8 +24,15 @@ import TipsRisksScreen from './src/screens/tips/TipsRisksScreen';
 import TipsTabBar from './src/components/tips/TipsTabBar';
 
 import { COLORS } from './src/constants/colors';
+import { NotificationService } from './services/notification';
 
 export default function App() {
+  useKeepAwake();
+
+  useEffect(() => {
+    NotificationService.init();
+  }, []);
+
   return (
     <SafeAreaProvider>
       <AppContent />
@@ -65,6 +73,15 @@ function AppContent() {
           >
             <Text style={styles.demoButtonText}>
               Warnscreen testen
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.demoButton}
+            onPress={() => setDemoMode('notification')}
+          >
+            <Text style={styles.demoButtonText}>
+              Notification testen
             </Text>
           </TouchableOpacity>
         </View>
@@ -146,11 +163,54 @@ function AppContent() {
             Verlauf
           </Text>
 
-          <Text
-            style={styles.fakeBottomNavigationTextActive}
-          >
+          <Text style={styles.fakeBottomNavigationTextActive}>
             Tipps
           </Text>
+        </View>
+
+        <StatusBar style="auto" />
+      </SafeAreaView>
+    );
+  }
+
+  if (demoMode === 'notification') {
+    return (
+      <SafeAreaView style={styles.notificationScreen}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => setDemoMode('home')}
+        >
+          <Text style={styles.demoButtonText}>
+            Zurück zum Homescreen
+          </Text>
+        </TouchableOpacity>
+
+        <Text style={styles.title}>
+          Gehörschutz aktiv
+        </Text>
+
+        <Text style={styles.subtitle}>
+          Der Bildschirm bleibt an, um dich durchgehend zu warnen.
+        </Text>
+
+        <View style={styles.buttonContainer}>
+          <Button
+            title="Simuliere Lärm (85 dB)"
+            onPress={() =>
+              NotificationService.triggerVolumeAlert(85)
+            }
+            color="#d9534f"
+          />
+        </View>
+
+        <View style={styles.buttonContainer}>
+          <Button
+            title="Stoppe Lärm-Warnung"
+            onPress={() =>
+              NotificationService.cancelAlert()
+            }
+            color="#5cb85c"
+          />
         </View>
 
         <StatusBar style="auto" />
@@ -248,6 +308,42 @@ const styles = StyleSheet.create({
     color: COLORS.text,
     fontSize: 12,
     fontWeight: 'bold',
+  },
+
+  notificationScreen: {
+    flex: 1,
+    backgroundColor: '#ffffff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+
+  backButton: {
+    position: 'absolute',
+    top: 24,
+    left: 20,
+    backgroundColor: '#eef4f5',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+
+  subtitle: {
+    fontSize: 14,
+    color: '#666666',
+    textAlign: 'center',
+    marginBottom: 40,
+  },
+
+  buttonContainer: {
+    marginBottom: 15,
+    width: '80%',
   },
 
   fakeBottomNavigation: {
