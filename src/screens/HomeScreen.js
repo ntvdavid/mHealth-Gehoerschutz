@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import Header from "../components/header/Header";
 import BottomNavigation from "../components/navigation/BottomNavigation";
+import SideMenu from "../components/navigation/SideMenu";
 import NoiseCircle from "../components/home/NoiseCircle";
 import StatCard from "../components/home/StatCard";
 import WeekStats from "../components/home/WeekStats";
@@ -12,11 +13,14 @@ import { COLORS } from "../constants/colors";
 
 
 export default function HomeScreen() {
+    const [menuVisible, setMenuVisible] = useState(false);
     const noiseLevel = 69; // Beispielwert, danach API
 
     return (
         <SafeAreaView style={styles.container}>
-            <Header />
+            <Header 
+                onMenuPress={() => setMenuVisible(true)}
+            />
             
             <ScrollView 
                 contentContainerStyle={styles.content}
@@ -52,6 +56,11 @@ export default function HomeScreen() {
                 onHomePress={() => {}}
                 onHistoryPress={() => {}}
                 onTipsPress={() => {}}
+            />
+
+            <SideMenu
+                visible={menuVisible}
+                onClose={() => setMenuVisible(false)}
             />
         </SafeAreaView>
     );
