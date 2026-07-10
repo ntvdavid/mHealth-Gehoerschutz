@@ -10,7 +10,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import Svg, { Polyline, Line, Text as SvgText, Circle } from 'react-native-svg';
-import { getReadings } from './storage';
+import { getReadings } from '../storage';
 
 const CHART_HEIGHT = 220;
 const CHART_PADDING = { top: 16, right: 16, bottom: 28, left: 40 };
