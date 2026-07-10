@@ -4,6 +4,7 @@ export const COLORS = {
     textSecondary: '#6e7a8a', //Sekundäre Textfarbe
     primary: '#079d93',   //Buttons
     secondary: '#f2f2f2', //Button-Sekundärfarbe
+    transparent: 'rgba(0, 0, 0, 0.35)', 
 
     warning: '#e13b3f', //Warnung
     lila: '#9d5ef6',

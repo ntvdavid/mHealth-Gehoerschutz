@@ -1,6 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { COLORS } from '../../constants/colors';
+import { TYPOGRAPHY } from '../../constants/typography';
 
 export default function SecondaryButton({ title, onPress }) {
     return (
@@ -20,7 +21,6 @@ const styles = StyleSheet.create({
     },
     buttonText: {
         color: COLORS.text,
-        fontSize: 16,
-        fontWeight: 'bold',
+        ...TYPOGRAPHY.h4,
     },
 });
