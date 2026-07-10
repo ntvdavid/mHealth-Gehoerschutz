@@ -11,6 +11,10 @@ export const TYPOGRAPHY = {
         fontSize: 18,
         fontWeight: 'bold',
     },
+    h4: {
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
     body: {
         fontSize: 14,
         fontWeight: 'normal',

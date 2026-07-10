@@ -12,7 +12,7 @@ export default function SecondaryButton({ title, onPress }) {
 
 const styles = StyleSheet.create({
     button: {
-        backgroundColor: COLORS.background,
+        backgroundColor: COLORS.secondary,
         paddingVertical: 12,
         paddingHorizontal: 24,
         borderRadius: 8,
