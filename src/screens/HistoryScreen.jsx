@@ -2,9 +2,8 @@ import React from 'react'
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
 import { ChevronLeft, ChevronRight, AlertTriangle } from "lucide-react-native";
 import { LineChart } from 'react-native-gifted-charts';
-import { Card, CardHeader, CardTitle, CardContent } from './ui/Card';
-import { HighlightCard, HighlightCardHeader, HighlightCardTitle, HighlightCardContent } from './ui/HighlightCard';
-import { Styles } from './../styles/Styles';
+import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card';
+import { HighlightCard, HighlightCardHeader, HighlightCardTitle, HighlightCardContent } from '../components/ui/HighlightCard';
 
 
 

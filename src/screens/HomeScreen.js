@@ -17,7 +17,7 @@ export default function HomeScreen() {
     const noiseLevel = 69; // Beispielwert, danach API
 
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
             <Header 
                 onMenuPress={() => setMenuVisible(true)}
             />
@@ -51,18 +51,11 @@ export default function HomeScreen() {
                 <WeekStats/>
             </ScrollView>
 
-            <BottomNavigation
-                activeTab="home"
-                onHomePress={() => {}}
-                onHistoryPress={() => {}}
-                onTipsPress={() => {}}
-            />
-
             <SideMenu
                 visible={menuVisible}
                 onClose={() => setMenuVisible(false)}
             />
-        </SafeAreaView>
+        </View>
     );
 }
 
