@@ -9,7 +9,7 @@ import { SPACING } from "../../constants/spacing";
 import { TYPOGRAPHY } from "../../constants/typography";
 import { getNoiseStatus } from "../../utils/getNoiseStatus";
 
-export default function NoiseCircle({ noiseLevel }) {
+export default function NoiseCircle({ noiseLevel, onInfoPress }) {
     const status = getNoiseStatus(noiseLevel);
 
     return (
@@ -21,9 +21,10 @@ export default function NoiseCircle({ noiseLevel }) {
 
                     <TouchableOpacity
                         style={styles.infoButton}
-                        onPress={() => {
-                            // Hier später Modal öffnen
-                        }}
+                        onPress={onInfoPress}
+                        activeOpacity={0.7}
+                        accessibilityRole="button"
+                        accessibilityLabel="Informationen über Dezibel öffnen"
                     >
                         <Feather
                             name="info"

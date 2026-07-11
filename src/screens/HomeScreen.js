@@ -8,12 +8,14 @@ import SideMenu from "../components/navigation/SideMenu";
 import NoiseCircle from "../components/home/NoiseCircle";
 import StatCard from "../components/home/StatCard";
 import WeekStats from "../components/home/WeekStats";
+import DBInfo from "../components/home/DBInfo";
 
 import { COLORS } from "../constants/colors";
 
 
 export default function HomeScreen() {
     const [menuVisible, setMenuVisible] = useState(false);
+    const [infoVisible, setInfoVisible] = useState(false);
     const noiseLevel = 69; // Beispielwert, danach API
 
     return (
@@ -28,6 +30,7 @@ export default function HomeScreen() {
             >
                 <NoiseCircle 
                     noiseLevel={noiseLevel}  
+                    onInfoPress={() => setInfoVisible(true)}
                 />
 
                 <View style={styles.statsContainer}>
@@ -61,6 +64,11 @@ export default function HomeScreen() {
             <SideMenu
                 visible={menuVisible}
                 onClose={() => setMenuVisible(false)}
+            />
+
+            <DBInfo
+                visible={infoVisible}
+                onClose={() => setInfoVisible(false)}
             />
         </SafeAreaView>
     );
