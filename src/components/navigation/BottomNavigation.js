@@ -6,12 +6,7 @@ import { COLORS } from "../../constants/colors";
 import { SPACING } from "../../constants/spacing";
 import { TYPOGRAPHY } from "../../constants/typography";
 
-export default function BottomNavigation({
-    activeTab, 
-    onHomePress,
-    onHistoryPress, 
-    onTippsPress
-})  {
+export default function BottomNavigation({ activeTab, onHomePress, onHistoryPress, onTippsPress})  {
     return (
         <View style={styles.container}>
             <NavItem
