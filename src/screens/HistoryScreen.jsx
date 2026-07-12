@@ -1,65 +1,85 @@
 import React from 'react'
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
 import { ChevronLeft, ChevronRight, AlertTriangle } from "lucide-react-native";
-import { LineChart } from 'react-native-gifted-charts';
+
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card';
 import { HighlightCard, HighlightCardHeader, HighlightCardTitle, HighlightCardContent } from '../components/ui/HighlightCard';
-
-
+import StatCard from "../components/home/StatCard";
+import { COLORS } from "../constants/colors";
+import TrendBanner from '../components/ui/TrendBanner';
 
 export default function HistoryScreen() {
   return (
+    <View style={historyScreen.view}>
+      <ScrollView contentContainerStyle={historyScreen.scrollView} showsVerticalScrollIndicator={false}>
 
-    <ScrollView style={historyScreen.scrollView}>
-
-      <Text style={historyScreen.tageszusammenfassung}>
-        Tageszusammenfassung
-      </Text>
-
-      <View style={historyScreen.datePickerContainer}>
-        <TouchableOpacity style={historyScreen.iconButtonChevron}>
-          <ChevronLeft size={16} color="#334155" />
-        </TouchableOpacity>
-        <Text style={historyScreen.dateText}>
-          DATE AKTUALISIEREN
+        <Text style={historyScreen.tageszusammenfassung}>
+          Tageszusammenfassung
         </Text>
-        <TouchableOpacity style={historyScreen.iconButtonChevron}>
-          <ChevronRight size={16} color="#334155" />
-        </TouchableOpacity>
-      </View>
 
-      <Card style={historyScreen.card}>
-        <CardHeader>
-          <CardTitle>Lautstärkeverlauf</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {/* Hier kommt dann später echtes Lautstärkeverlauf hin */}
-          <View style={historyScreen.cardContent}>
-            <Text style={historyScreen.slateText}>Diagramm Platzhalter</Text>
-          </View>
-        </CardContent>
-      </Card>
+        <View style={historyScreen.datePickerContainer}>
+          <TouchableOpacity style={historyScreen.iconButtonChevron}>
+            <ChevronLeft size={16} color="#334155" />
+          </TouchableOpacity>
+          <Text style={historyScreen.dateText}>
+            DATE AKTUALISIEREN
+          </Text>
+          <TouchableOpacity style={historyScreen.iconButtonChevron}>
+            <ChevronRight size={16} color="#334155" />
+          </TouchableOpacity>
+        </View>
 
-      <HighlightCard>
-        {/* Hier kommt die Warnbox */}
-        <HighlightCardContent>
-          {/* Hier kommt dann später echtes Warnbox hin */}
-          <View style={historyScreen.warningContainer}>
-            <Text style={historyScreen.warningText}>Warnbox Platzhalter</Text>
-          </View>
-        </HighlightCardContent>
-      </HighlightCard>
+        <View style={historyScreen.statsContainer}>
+          <StatCard
+            title="Durchschnitt"
+            value="?%"
+          />
 
-    </ScrollView>
+          <StatCard
+            title="Peak"
+            value="?"
+            color={COLORS.warning}
+          />
+
+          <StatCard
+            title="Schädl. Bereich"
+            value="? dB"
+          />
+        </View>
+
+
+        <TrendBanner />
+
+
+        <HighlightCard>
+          {/* Hier kommt die Warnbox */}
+          <HighlightCardContent>
+            {/* Hier kommt dann später echtes Warnbox hin */}
+            <View style={historyScreen.warningContainer}>
+              <Text style={historyScreen.warningText}>Warnbox Platzhalter</Text>
+            </View>
+          </HighlightCardContent>
+        </HighlightCard>
+
+      </ScrollView>
+    </View>
   );
 }
 
 const historyScreen = StyleSheet.create({
+
+  view: {
+    flex: 1,
+    backgroundColor: '#f8fafc',
+  },
+
   scrollView: {
     flex: 1,
     backgroundColor: '#f8fafc',
     paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingTop: 12,
+    paddingBottom: 30,
+    gap: 16,
   },
 
   tageszusammenfassung: {
@@ -67,6 +87,11 @@ const historyScreen = StyleSheet.create({
     fontWeight: 'bold',
     color: '#1e293b',
     marginBottom: 16,
+  },
+
+  statsContainer: {
+    flexDirection: "row",
+    gap: 12,
   },
 
   datePickerContainer: {

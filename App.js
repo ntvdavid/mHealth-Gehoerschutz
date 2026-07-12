@@ -269,7 +269,6 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
 
-  // --- Styles deiner Gruppe ---
   homeTestButtons: {
     position: 'absolute',
     top: 48,
