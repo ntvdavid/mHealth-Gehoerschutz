@@ -63,7 +63,7 @@ export const audioMeteringEmitter = new SimpleEmitter();
 // - extern: ein zweites Gerät mit derselben App spielt ihn ab
 //   (siehe ExternalTonePlayerScreen.js) - daher wird hier keine separate
 //   Tondatei mehr benötigt.
-const TONE_ASSET_INTERNAL = require('../assets/calibration-tone.wav');
+const TONE_ASSET_INTERNAL = require('../../assets/calibration-tone.wav');
 
 const SILENCE_PHASE_DURATION_MS = 30_000;
 const SILENCE_SAMPLE_INTERVAL_MS = 1_000;
@@ -182,6 +182,7 @@ export function useAudioMeteringService(options = {}) {
       await setAudioModeAsync({
         allowsRecording: true,
         playsInSilentMode: true,
+        allowsBackgroundRecording: true,
       });
     }
     return status.granted;
@@ -439,10 +440,11 @@ export function useAudioMeteringService(options = {}) {
     isRecording: recorderState?.isRecording ?? false,
 
     currentRawDbfs: recorderState?.metering ?? null,
-    currentCalibratedDb: recorderState?.metering
-      ? toCalibratedDb(recorderState.metering)
-      : null,
-    rawBuffer: rawBufferRef.current,
+    currentCalibratedDb: 
+      recorderState?.metering !== null &&
+      recorderState?.metering !== undefined
+        ? toCalibratedDb(recorderState.metering)
+        : null,
 
     runCalibration,
     confirmToneReady,

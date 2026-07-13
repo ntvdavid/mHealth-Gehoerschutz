@@ -25,6 +25,7 @@ import TipsTabBar from './src/components/tips/TipsTabBar';
 
 import { COLORS } from './src/constants/colors';
 import { NotificationService } from './services/notification';
+import { useAudioMeteringService } from './src/audio/useAudioMeteringService';
 
 export default function App() {
   useKeepAwake();
@@ -47,6 +48,8 @@ function AppContent() {
   const [tipsScreen, setTipsScreen] =
     useState('recommendations');
 
+  const audioMeter = useAudioMeteringService({ referenceSpl: 70, storageIntervalMs: 1000 });
+
   function handleClose() {
     setAlertFlowScreen('recommendations');
     setDemoMode('home');
@@ -55,7 +58,7 @@ function AppContent() {
   if (demoMode === 'home') {
     return (
       <View style={styles.appShell}>
-        <HomeScreen />
+        <HomeScreen audioMeter={audioMeter} />
 
         <View style={styles.homeTestButtons}>
           <TouchableOpacity

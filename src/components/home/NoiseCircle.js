@@ -10,13 +10,21 @@ import { TYPOGRAPHY } from "../../constants/typography";
 import { getNoiseStatus } from "../../utils/getNoiseStatus";
 
 export default function NoiseCircle({ noiseLevel }) {
-    const status = getNoiseStatus(noiseLevel);
+    const hasNoiseLevel = Number.isFinite(noiseLevel);
+
+    const status = hasNoiseLevel
+        ? getNoiseStatus(noiseLevel)
+        : { text: "Nicht kalibriert", color: COLORS.textSecondary };
+
+    const displayNoiseLevel = hasNoiseLevel
+        ? Math.round(noiseLevel)
+        : "--";
 
     return (
         <Card style={styles.container}>
             <View style={[styles.circle, { borderColor: status.color }]}>
                 <View style={styles.dbContainer}>
-                    <Text style={styles.db}>{noiseLevel}</Text>
+                    <Text style={styles.db}>{displayNoiseLevel}</Text>
                     <Text style={styles.unit}>dB</Text>
 
                     <TouchableOpacity
