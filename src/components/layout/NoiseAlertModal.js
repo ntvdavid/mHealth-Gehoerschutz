@@ -6,15 +6,7 @@ import { COLORS} from '../../constants/colors';
 import { SPACING}from '../../constants/spacing';
 import { TYPOGRAPHY } from '../../constants/typography';
 
-export default function NoiseAlertModal({visible, currentDb, onClose, onGoToRecommendations}) {
-
-    const handleAction = () => {
-        onClose(); // stops vibration and closes the modal
-        if (onGoToRecommendations) { 
-            onGoToRecommendations(); // Navigate to the recommendations screen
-        }
-    }
-    // calculation exposition time based on dB value, source: https://www.bgrci.de/praxishandbuch-baustoffindustrie/a-grundlagen/a-1-allgemeines/a-18-laerm
+// calculation exposition time based on dB value, source: https://www.bgrci.de/praxishandbuch-baustoffindustrie/a-grundlagen/a-1-allgemeines/a-18-laerm
     const calculateExpositionTime = (db) => {
         if (db < 85) return "unbegrenzt";
 
@@ -30,6 +22,15 @@ export default function NoiseAlertModal({visible, currentDb, onClose, onGoToReco
             return `${seconds} ${seconds === 1 ? 'Sekunde' : 'Sekunden'}`;
         }
     };
+
+export default function NoiseAlertModal({visible, currentDb, onClose, onGoToRecommendations}) {
+
+    const handleAction = () => {
+        if (onGoToRecommendations) { 
+            onGoToRecommendations(); // Navigate to the recommendations screen
+        }
+        onClose(); // Close the modal
+    }
 
     return (
         <Modal

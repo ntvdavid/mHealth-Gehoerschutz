@@ -81,7 +81,7 @@ function AppContent() {
 
           <TouchableOpacity
             style={styles.demoButton}
-            onPress={() =>triggerFakeLarm(120)}
+            onPress={() =>triggerFakeLarm(96)}
           >
             <Text style={styles.demoButtonText}>
               Warnscreen testen
