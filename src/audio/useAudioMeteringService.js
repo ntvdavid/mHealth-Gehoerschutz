@@ -63,7 +63,7 @@ export const audioMeteringEmitter = new SimpleEmitter();
 // - extern: ein zweites Gerät mit derselben App spielt ihn ab
 //   (siehe ExternalTonePlayerScreen.js) - daher wird hier keine separate
 //   Tondatei mehr benötigt.
-const TONE_ASSET_INTERNAL = require('../assets/calibration-tone.wav');
+const TONE_ASSET_INTERNAL = require('../../assets/calibration-tone.wav');
 
 const SILENCE_PHASE_DURATION_MS = 30_000;
 const SILENCE_SAMPLE_INTERVAL_MS = 1_000;

@@ -24,7 +24,9 @@ import TipsRisksScreen from './src/screens/tips/TipsRisksScreen';
 import TipsTabBar from './src/components/tips/TipsTabBar';
 
 import { COLORS } from './src/constants/colors';
-import { NotificationService } from './services/notification';
+import { NotificationService } from './src/services/notification';
+
+import { audioMeteringEmitter } from './src/audio/useAudioMeteringService';
 
 export default function App() {
   useKeepAwake();
@@ -52,6 +54,15 @@ function AppContent() {
     setDemoMode('home');
   }
 
+  // Funktion, um einen Lärm-Wert an den HomeScreen zu streamen
+  const triggerFakeLarm = (dbValue) => {
+    audioMeteringEmitter.emit({
+      rawDbfs: -Math.abs(dbValue), // Simuliert dbFS Pegel
+      calibratedDb: dbValue,       // Dein HomeScreen reagiert hierauf!
+      isRecording: true
+    });
+  };
+
   if (demoMode === 'home') {
     return (
       <View style={styles.appShell}>
@@ -69,7 +80,7 @@ function AppContent() {
 
           <TouchableOpacity
             style={styles.demoButton}
-            onPress={() => setDemoMode('fullscreen')}
+            onPress={() =>triggerFakeLarm(95)}
           >
             <Text style={styles.demoButtonText}>
               Warnscreen testen
