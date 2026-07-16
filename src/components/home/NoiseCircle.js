@@ -45,10 +45,12 @@ export default function NoiseCircle({ noiseLevel }) {
                 <Text style={[styles.status, { color: status.color }]}>
                     {status.text}
                 </Text>
-
-                <Text style={styles.subtitle}>
-                    Aktuelle Lautstärke
-                </Text>
+                {status.exposure && (
+                  <Text style={styles.exposure}>
+                    Max. Expositionsdauer:{"\n"}
+                    {status.exposure}
+                  </Text>
+                )}
             </View>
         </Card>
     );
@@ -95,5 +97,10 @@ const styles = StyleSheet.create({
     subtitle: {
         ...TYPOGRAPHY.body,
         color: COLORS.textSecondary,
+    },
+    exposure: {
+        ...TYPOGRAPHY.caption,
+        color: COLORS.textSecondary,
+        marginBottom: 15,
     }
 });

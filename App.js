@@ -29,6 +29,7 @@ import { hasSeenCalibrationPrompt, markCalibrationPromptSeen } from './src/audio
 import { COLORS } from './src/constants/colors';
 import { NotificationService } from './services/notification';
 import { useAudioMeteringService } from './src/audio/useAudioMeteringService';
+import { getNoiseStatus } from './src/utils/getNoiseStatus';
 
 export default function App() {
   useKeepAwake();
@@ -64,6 +65,8 @@ export default function App() {
   );
 }
 
+const WARNING_THRESHOLD_DB = 100;
+
 function AppContent({
   notificationPermissionResolved,
 }) {
@@ -76,6 +79,13 @@ function AppContent({
     const audioMeter = useAudioMeteringService({ referenceSpl: 70, storageIntervalMs: 1000 });
     const calibrationPromptCheckedRef = useRef(false);
     const microphonePermissionRequestedRef = useRef(false);
+    const warningTriggeredRef = useRef(false);
+
+    const currentDb = audioMeter.currentCalibratedDb;
+    const noiseStatus = getNoiseStatus(currentDb);
+    const displayDb = Number.isFinite(currentDb)
+      ? `${Math.round(currentDb)} dB`
+      : null;
 
     useEffect(() => {
       if (
@@ -96,6 +106,33 @@ function AppContent({
       notificationPermissionResolved,
       audioMeter.requestPermission,
     ]);
+
+    useEffect(() => {
+      if (
+        demoMode === 'home' &&
+        audioMeter.isRecording &&
+        Number.isFinite(currentDb) &&
+        currentDb >= WARNING_THRESHOLD_DB
+      ) {
+        setDemoMode('notification');
+      }
+    }, [demoMode, audioMeter.isRecording, currentDb]);
+
+    useEffect(() => {
+      if (demoMode !== 'notification') {
+        warningTriggeredRef.current = false;
+        return;
+      }
+
+      if (
+        !warningTriggeredRef.current &&
+        Number.isFinite(currentDb) &&
+        currentDb >= WARNING_THRESHOLD_DB
+      ) {
+        warningTriggeredRef.current = true;
+        NotificationService.triggerVolumeAlert(Math.round(currentDb));
+      }
+    }, [demoMode, currentDb]);
 
     useEffect(() => {
       const allPermissionsResolved = 
@@ -311,18 +348,20 @@ function AppContent({
         </TouchableOpacity>
 
         <Text style={styles.title}>
-          Gehörschutz aktiv
+          Lärmwarnung
         </Text>
 
         <Text style={styles.subtitle}>
-          Der Bildschirm bleibt an, um dich durchgehend zu warnen.
+          {displayDb
+            ? `Aktueller Pegel: ${displayDb}. Max. empfohlene Expositionsdauer: ${noiseStatus.exposure}.`
+            : 'Messung läuft noch oder Kalibrierung fehlt.'}
         </Text>
 
         <View style={styles.buttonContainer}>
           <Button
-            title="Simuliere Lärm (85 dB)"
+            title={`Simuliere Lärm (${WARNING_THRESHOLD_DB} dB)`}
             onPress={() =>
-              NotificationService.triggerVolumeAlert(85)
+              NotificationService.triggerVolumeAlert(WARNING_THRESHOLD_DB)
             }
             color="#d9534f"
           />
