@@ -39,7 +39,7 @@ export default function DecibelInfoModal({ visible, onClose }) {
         <Modal
             visible={visible}
             transparent
-            animationType="slide"
+            animationType="fade"
             onRequestClose={onClose}
         >
             <View style={styles.overlay}>
@@ -71,8 +71,9 @@ export default function DecibelInfoModal({ visible, onClose }) {
                         Dezibel (dB) ist die Maßeinheit für Lautstärke.
                         Die Skala ist{" "}
                         <Text style={styles.bold}>logarithmisch</Text>
-                        {" "}– das bedeutet: 10 dB mehr werden ungefähr
-                        als doppelt so laut wahrgenommen.
+                        {" "}– das bedeutet: 10 dB mehr werden ungefähr als{" "}
+                        <Text style={styles.bold}>doppelt</Text>
+                        {" "} so laut wahrgenommen.
                     </Text>
 
                     <View style={styles.examples}>

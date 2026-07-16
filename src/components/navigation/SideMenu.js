@@ -6,7 +6,7 @@ import { COLORS } from "../../constants/colors";
 import { SPACING } from "../../constants/spacing";
 import { TYPOGRAPHY } from "../../constants/typography";
 
-export default function SideMenu({ visible, onClose }){ 
+export default function SideMenu({ visible, onClose, onNotificationsPress, onPrivacyPress, onAboutPress }){ 
     return(
         <Modal
             visible={visible}
@@ -32,9 +32,9 @@ export default function SideMenu({ visible, onClose }){
                     </View>
 
                     <MenuItem
-                        title="Benarichtigung"
+                        title="Benachrichtigungen"
                         subtitle="Warnung & Hinweise verwalten"
-                        onPress={() => {}}
+                        onPress={onNotificationsPress}
                     />
 
                     <MenuItem
@@ -46,13 +46,13 @@ export default function SideMenu({ visible, onClose }){
                     <MenuItem
                         title="Datenschutz"
                         subtitle="Daten & Berechtigung"
-                        onPress={() => {}}
+                        onPress={onPrivacyPress}
                     />
 
                     <MenuItem
                         title="Über die App"
-                        subtitle="Version, Impressum & Kontak"
-                        onPress={() => {}}
+                        subtitle="Version, Impressum & Kontakt"
+                        onPress={onAboutPress}
                     />
                 </View>
 

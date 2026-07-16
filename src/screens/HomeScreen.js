@@ -10,6 +10,9 @@ import StatCard from "../components/home/StatCard";
 import StatCardModal from "../components/home/StatCardModal";
 import WeekStats from "../components/home/WeekStats";
 import DBInfo from "../components/home/DBInfo";
+import NotificationSettingsScreen from "./NotificationSettingsScreen";
+import PrivacySettingsScreen from "./PrivacySettingsScreen";
+import AboutAppScreen from "./AboutAppScreen";
 
 import { COLORS } from "../constants/colors";
 
@@ -18,7 +21,34 @@ export default function HomeScreen() {
     const [menuVisible, setMenuVisible] = useState(false);
     const [infoVisible, setInfoVisible] = useState(false);
     const [selectedCard, setSelectedCard] = useState(null);
+
+    const [activeSettingsPage, setActiveSettingsPage] = useState(null);
+
     const noiseLevel = 69; // Beispielwert, danach API
+
+    if (activeSettingsPage === "notifications") {
+        return (
+            <NotificationSettingsScreen
+                onBack={() => setActiveSettingsPage(null)}
+            />
+        );
+    }
+
+    if (activeSettingsPage === "privacy") {
+        return (
+            <PrivacySettingsScreen
+                onBack={() => setActiveSettingsPage(null)}
+            />
+        );
+    }
+
+    if (activeSettingsPage === "about") {
+        return (
+            <AboutAppScreen
+                onBack={() => setActiveSettingsPage(null)}
+            />
+        );
+    }
 
     return (
         <SafeAreaView style={styles.container}>
@@ -85,6 +115,18 @@ export default function HomeScreen() {
             <SideMenu
                 visible={menuVisible}
                 onClose={() => setMenuVisible(false)}
+                onNotificationsPress={() => {
+                    setMenuVisible(false);
+                    setActiveSettingsPage("notifications");
+                }}
+                onPrivacyPress={() => {
+                    setMenuVisible(false);
+                    setActiveSettingsPage("privacy");
+                }}
+                onAboutPress={() => {
+                    setMenuVisible(false);
+                    setActiveSettingsPage("about");
+                }}
             />
 
             <DBInfo
