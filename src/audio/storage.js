@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const CALIBRATION_KEY = '@audio-meter/calibration';
 const READINGS_PREFIX = '@audio-meter/readings/';
+const CALIBRATION_PROMPT_SEEN_KEY = '@audio-meter/calibration-prompt-seen';
 const RETENTION_MS = 7 * 24 * 60 * 60 * 1000; // 7 Tage
 
 let writeQueue = Promise.resolve();
@@ -162,4 +163,18 @@ export const clearReadings = async () => {
     if (readingKeys.length > 0) {
         await AsyncStorage.multiRemove(readingKeys);
     }
+};
+
+export const hasSeenCalibrationPrompt = async () => {
+    const storedValue = await AsyncStorage.getItem(
+        CALIBRATION_PROMPT_SEEN_KEY
+    );
+    return storedValue === 'true';
+};
+
+export const markCalibrationPromptSeen = async () => {
+    await AsyncStorage.setItem(
+        CALIBRATION_PROMPT_SEEN_KEY,
+        'true'
+    );
 };

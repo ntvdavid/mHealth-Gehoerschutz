@@ -6,7 +6,7 @@ import { COLORS } from "../../constants/colors";
 import { SPACING } from "../../constants/spacing";
 import { TYPOGRAPHY } from "../../constants/typography";
 
-export default function SideMenu({ visible, onClose }){ 
+export default function SideMenu({ visible, onClose, onCalibrationPress }){ 
     return(
         <Modal
             visible={visible}
@@ -39,8 +39,8 @@ export default function SideMenu({ visible, onClose }){
 
                     <MenuItem
                         title="Grenzwert anpassen"
-                        subtitle="Eigene dB-Schwellenwerte setzen"
-                        onPress={() => {}}
+                        subtitle="Mikrofon kalibrieren und Grenzwerte einstellen"
+                        onPress={onCalibrationPress}
                     />
 
                     <MenuItem
