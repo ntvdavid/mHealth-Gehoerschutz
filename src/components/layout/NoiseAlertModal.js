@@ -6,7 +6,31 @@ import { COLORS} from '../../constants/colors';
 import { SPACING}from '../../constants/spacing';
 import { TYPOGRAPHY } from '../../constants/typography';
 
-export default function NoiseAlertModal({visible, currentDb, onClose}) {
+export default function NoiseAlertModal({visible, currentDb, onClose, onGoToRecommendations}) {
+
+    const handleAction = () => {
+        onClose(); // stops vibration and closes the modal
+        if (onGoToRecommendations) { 
+            onGoToRecommendations(); // Navigate to the recommendations screen
+        }
+    }
+    // calculation exposition time based on dB value, source: https://www.bgrci.de/praxishandbuch-baustoffindustrie/a-grundlagen/a-1-allgemeines/a-18-laerm
+    const calculateExpositionTime = (db) => {
+        if (db < 85) return "unbegrenzt";
+
+        const minutes = 480 * Math.pow(2, (85 - db) / 3);
+
+        if (minutes >= 60) {
+            const hours = Math.floor(minutes / 60);
+            return `${hours} ${hours === 1 ? 'Stunde' : 'Stunden'}`;
+        } else if (minutes >= 1) {
+            return `${Math.round(minutes)} Minuten`;
+        } else {
+            const seconds = Math.round(minutes * 60);
+            return `${seconds} ${seconds === 1 ? 'Sekunde' : 'Sekunden'}`;
+        }
+    };
+
     return (
         <Modal
         visible={visible}
@@ -15,7 +39,7 @@ export default function NoiseAlertModal({visible, currentDb, onClose}) {
         >
             <SafeAreaView style={styles.alarmContainer}>
 
-                {/* Header with close button */}    
+                {/* Header with close button */}     
                 <View style={styles.header}>
                     <TouchableOpacity onPress={onClose} style={styles.closeButton}>
                         <Ionicons name="close" size={28} color={COLORS.background} />
@@ -43,18 +67,21 @@ export default function NoiseAlertModal({visible, currentDb, onClose}) {
                         Bei dieser Lautstärke können bereits nach kurzer Zeit dauerhafte Hörschäden entstehen. Schütze dein Gehör jetzt!
                     </Text>
 
-                    {/* Time-Warning */}
+                    {/* dynamic Time-Warning, Source: https://www.bgrci.de/praxishandbuch-baustoffindustrie/a-grundlagen/a-1-allgemeines/a-18-laerm */} 
                     <View style={styles.infoBox}>
-                        <Text style={styles.infoText}>
-                            Bei 100 dB liegt die empfohlene maximale Expositionszeit bei etwa <Text style={{fontWeight: 'bold'}}>15Minuten</Text>.
+                        <Text style={styles.infoText}> 
+                           📋 Bei {currentDb} dB liegt die empfohlene Expositionszeit bei etwa{' '}
+                           <Text style={{fontWeight: 'bold'}}>
+                            {calculateExpositionTime(currentDb)}
+                           </Text>.
                         </Text>
                     </View>
                 </View>
 
                 {/* Action button */}
                 <View style={styles.footer}>
-                    <TouchableOpacity style={styles.actionButton} onPress={onClose}>
-                        <Text style={styles.actionButtonText}>Verstanden</Text>
+                    <TouchableOpacity style={styles.actionButton} onPress={handleAction}>
+                        <Text style={styles.actionButtonText}>Empfehlungen anzeigen</Text>
                     </TouchableOpacity>
                 </View>
 

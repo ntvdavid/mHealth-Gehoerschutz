@@ -27,6 +27,7 @@ import { COLORS } from './src/constants/colors';
 import { NotificationService } from './src/services/notification';
 
 import { audioMeteringEmitter } from './src/audio/useAudioMeteringService';
+import { Home } from 'lucide-react-native';
 
 export default function App() {
   useKeepAwake();
@@ -66,7 +67,7 @@ function AppContent() {
   if (demoMode === 'home') {
     return (
       <View style={styles.appShell}>
-        <HomeScreen />
+        <HomeScreen onNavigateToRecommendations={() => setDemoMode('fullmode')} />
 
         <View style={styles.homeTestButtons}>
           <TouchableOpacity
@@ -80,7 +81,7 @@ function AppContent() {
 
           <TouchableOpacity
             style={styles.demoButton}
-            onPress={() =>triggerFakeLarm(95)}
+            onPress={() =>triggerFakeLarm(120)}
           >
             <Text style={styles.demoButtonText}>
               Warnscreen testen

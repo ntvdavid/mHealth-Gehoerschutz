@@ -16,10 +16,9 @@ import { audioMeteringEmitter } from "../audio/useAudioMeteringService";
 
 
 import { COLORS } from "../constants/colors";
-import NoiseAlertModal from "../components/layout/NoiseAlertModal";
 
 
-export default function HomeScreen() {
+export default function HomeScreen({onNavigateToRecommendations}) {
     const [menuVisible, setMenuVisible] = useState(false);
     const [alertVisible, setAlertVisible] = useState(false);
     const [noiseLevel, setNoiseLevel] = useState(69); // Beispielwert, danach API
@@ -104,7 +103,11 @@ export default function HomeScreen() {
             <NoiseAlertModal
                 visible={alertVisible}
                 currentDb={noiseLevel}
-                onClose={handleCloseAlert}
+                onClose={() => {
+                    setAlertVisible(false);
+                    NotificationService.cancelAlert(); 
+                }}
+                onGoToRecommendations={onNavigateToRecommendations}
             />  
         </SafeAreaView>
     );
