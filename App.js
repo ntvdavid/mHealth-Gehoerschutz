@@ -82,7 +82,6 @@ function AppContent({
     const audioMeter = useAudioMeteringService({ referenceSpl: 70, storageIntervalMs: 1000 });
     const calibrationPromptCheckedRef = useRef(false);
     const microphonePermissionRequestedRef = useRef(false);
-    const warningTriggeredRef = useRef(false);
 
     const currentDb = audioMeter.currentCalibratedDb;
     const noiseStatus = getNoiseStatus(currentDb);
@@ -109,33 +108,6 @@ function AppContent({
       notificationPermissionResolved,
       audioMeter.requestPermission,
     ]);
-
-    useEffect(() => {
-      if (
-        demoMode === 'home' &&
-        audioMeter.isRecording &&
-        Number.isFinite(currentDb) &&
-        currentDb >= WARNING_THRESHOLD_DB
-      ) {
-        setDemoMode('notification');
-      }
-    }, [demoMode, audioMeter.isRecording, currentDb]);
-
-    useEffect(() => {
-      if (demoMode !== 'notification') {
-        warningTriggeredRef.current = false;
-        return;
-      }
-
-      if (
-        !warningTriggeredRef.current &&
-        Number.isFinite(currentDb) &&
-        currentDb >= WARNING_THRESHOLD_DB
-      ) {
-        warningTriggeredRef.current = true;
-        NotificationService.triggerVolumeAlert(Math.round(currentDb));
-      }
-    }, [demoMode, currentDb]);
 
     useEffect(() => {
       const allPermissionsResolved = 

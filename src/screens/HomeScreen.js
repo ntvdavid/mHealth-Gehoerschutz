@@ -49,7 +49,7 @@ export default function HomeScreen({ audioMeter, onOpenCalibration, onNavigateTo
             setNoiseLevel(roundedDb);
 
             // 3. Wenn die Lautstärke >= 85 dB steigt und der Alarm noch nicht aktiv ist
-            if (roundedDb >= 85 && !alertVisible) {
+            if (roundedDb >= 100 && !alertVisible) {
                 setAlertVisible(true);
                 NotificationService.triggerVolumeAlert(roundedDb);
             }
