@@ -35,21 +35,16 @@ export default function HomeScreen({ audioMeter, onOpenCalibration, onNavigateTo
         NotificationService.init();
         
         const unsubscribe = audioMeteringEmitter.on((sample) => {
-            let currentDb = sample.calibratedDb;
-
-            if (!Number.isFinite(currentDb)) {
-                currentDb = Math.abs(sample.rawDbfs);
-            }
-
-            if (!Number.isFinite(currentDb)) {
+            if (!Number.isFinite(sample.calibratedDb)) {
                 return;
             }
 
-            const roundedDb = Math.round(currentDb);
+            const roundedDb = Math.round(sample.calibratedDb);
             setNoiseLevel(roundedDb);
 
-            // 3. Wenn die Lautstärke >= 85 dB steigt und der Alarm noch nicht aktiv ist
-            if (roundedDb >= 85 && !alertVisible) {
+            const WARNING_THRESHOLD_DB = 100;
+
+            if (roundedDb >= WARNING_THRESHOLD_DB && !alertVisible) {
                 setAlertVisible(true);
                 NotificationService.triggerVolumeAlert(roundedDb);
             }
