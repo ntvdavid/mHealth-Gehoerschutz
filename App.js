@@ -32,12 +32,6 @@ const tabs = [
   { id: "tips", label: "Tipps" },
 ];
 
-const tabs = [
-  { id: "home", label: "Home" },
-  { id: "history", label: "Verlauf" },
-  { id: "tips", label: "Tipps" },
-];
-
 export default function App() {
   useKeepAwake();
 
