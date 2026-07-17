@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View, Modal, } from "react-native";
 import { createAudioPlayer, setAudioModeAsync } from "expo-audio";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
@@ -14,6 +14,7 @@ const REFERENCE_TONE = require("../../assets/calibration-tone.wav");
 
 export default function CalibrationScreen({ audioMeter, onBack }) {
     const [referenceTonePlaying, setReferenceTonePlaying] = useState(false);
+    const [guidVisible, setGuideVisible] = useState(true);
     const referencePlayerRef = useRef(null);
 
     const {
@@ -171,7 +172,22 @@ export default function CalibrationScreen({ audioMeter, onBack }) {
                             >
                                 <Text style={styles.audioButtonText}>Messung stoppen</Text>
                             </TouchableOpacity>
-                        </View>
+
+                            <TouchableOpacity
+                                style={styles.guideButton}
+                                onPress={() => setGuideVisible(true)}
+                            >
+                                <Feather
+                                    name="help-circle"
+                                    size={18}
+                                    color={COLORS.primary}
+                                />
+
+                                <Text style={styles.guideButtonText}>
+                                    Guide anzeigen
+                                </Text>
+                            </TouchableOpacity>
+                        </View> 
 
                         <TouchableOpacity
                             style={[
