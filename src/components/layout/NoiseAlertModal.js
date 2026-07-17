@@ -26,11 +26,18 @@ import { TYPOGRAPHY } from '../../constants/typography';
 export default function NoiseAlertModal({visible, currentDb, onClose, onGoToRecommendations}) {
 
     const handleAction = () => {
+        onGoToRecommendations?.();
+        onClose?.();
+    };
+
+    /*
+    const handleAction = () => {
         if (onGoToRecommendations) { 
             onGoToRecommendations(); // Navigate to the recommendations screen
         }
         onClose(); // Close the modal
     }
+*/
 
     return (
         <Modal

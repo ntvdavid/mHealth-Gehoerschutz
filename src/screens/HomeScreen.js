@@ -26,20 +26,23 @@ export default function HomeScreen({ audioMeter, onOpenCalibration, onNavigateTo
     const [menuVisible, setMenuVisible] = useState(false);
     const [infoVisible, setInfoVisible] = useState(false);
     const [selectedCard, setSelectedCard] = useState(null);
+    const [alertVisible, setAlertVisible] = useState(false);
+    const [noiseLevel, setNoiseLevel] = useState(null);
 
     const [activeSettingsPage, setActiveSettingsPage] = useState(null);
-
-    const noiseLevel = 69; // Beispielwert, danach API
-    const [noiseLevel, setNoiseLevel] = useState(69); // Beispielwert, danach API
 
     useEffect(() => {
         NotificationService.init();
         
         const unsubscribe = audioMeteringEmitter.on((sample) => {
-            // Hole kalibrierten Wert. Falls noch nicht kalibriert, nutze dBFS-Rohwert positiviert.
             let currentDb = sample.calibratedDb;
-            if (currentDb === null || currentDb === undefined) {
-                currentDb = Math.abs(sample.rawDbfs); 
+
+            if (!Number.isFinite(currentDb)) {
+                currentDb = Math.abs(sample.rawDbfs);
+            }
+
+            if (!Number.isFinite(currentDb)) {
+                return;
             }
 
             const roundedDb = Math.round(currentDb);
@@ -105,9 +108,8 @@ export default function HomeScreen({ audioMeter, onOpenCalibration, onNavigateTo
                 showsVerticalScrollIndicator={false}
             >
                 <NoiseCircle 
-                    noiseLevel={noiseLevel}  
-                    onInfoPress={() => setInfoVisible(true)}
                     noiseLevel={currentCalibratedDb}  
+                    onInfoPress={() => setInfoVisible(true)}
                 />
 
                 <View style={styles.measurementControls}>
@@ -188,6 +190,10 @@ export default function HomeScreen({ audioMeter, onOpenCalibration, onNavigateTo
             <SideMenu
                 visible={menuVisible}
                 onClose={() => setMenuVisible(false)}
+                onCalibrationPress={() => {
+                    setMenuVisible(false);
+                    onOpenCalibration();
+                }}
                 onNotificationsPress={() => {
                     setMenuVisible(false);
                     setActiveSettingsPage("notifications");
@@ -212,18 +218,14 @@ export default function HomeScreen({ audioMeter, onOpenCalibration, onNavigateTo
                 title={selectedCard?.title}
                 description={selectedCard?.description}
                 onClose={() => setSelectedCard(null)}
-                onCalibrationPress={() => {
-                    setMenuVisible(false);
-                    onOpenCalibration();
-                }}
             />
 
             <NoiseAlertModal
                 visible={alertVisible}
-                currentDb={noiseLevel}
+                currentDb={noiseLevel ?? 0}
                 onClose={() => {
                     setAlertVisible(false);
-                    NotificationService.cancelAlert(); 
+                    NotificationService.cancelAlert();
                 }}
                 onGoToRecommendations={onNavigateToRecommendations}
             />  

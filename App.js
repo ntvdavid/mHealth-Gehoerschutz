@@ -27,7 +27,7 @@ import TipsTabBar from './src/components/tips/TipsTabBar';
 import { hasSeenCalibrationPrompt, markCalibrationPromptSeen } from './src/audio/storage';
 
 import { COLORS } from './src/constants/colors';
-import { NotificationService } from './services/notification';
+import { NotificationService } from './src/services/notification';
 import { useAudioMeteringService } from './src/audio/useAudioMeteringService';
 import { getNoiseStatus } from './src/utils/getNoiseStatus';
 
@@ -213,12 +213,12 @@ function AppContent({
       <View style={styles.appShell}>
         <HomeScreen 
           audioMeter={audioMeter}
-          onOpenCalibration={() =>
-            setDemoMode('calibration')
-          } 
+          onOpenCalibration={() => setDemoMode('calibration')}
+          onNavigateToRecommendations={() => {
+            setAlertFlowScreen('recommendations');
+            setDemoMode('fullscreen');
+          }}
         />
-        <HomeScreen onNavigateToRecommendations={() => setDemoMode('fullmode')} />
-
         <View style={styles.homeTestButtons}>
           <TouchableOpacity
             style={styles.demoButton}

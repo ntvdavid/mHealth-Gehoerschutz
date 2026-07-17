@@ -36,9 +36,9 @@ export default function NotificationSettingsScreen({ onBack }) {
                     </Text>
 
                     <Text style={styles.subtitle}>
-                        Warnungen und Hinweise verwalten
-                    </Text>
-                </View>
+                            Warnungen und Hinweise verwalten
+                        </Text>
+                    </View>
             </View>
 
             <ScrollView

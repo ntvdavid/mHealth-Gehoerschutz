@@ -9,7 +9,7 @@ import { SPACING } from "../../constants/spacing";
 import { TYPOGRAPHY } from "../../constants/typography";
 import { getNoiseStatus } from "../../utils/getNoiseStatus";
 
-export default function NoiseCircle({ noiseLevel }) {
+export default function NoiseCircle({ noiseLevel, onInfoPress }) {
     const hasNoiseLevel = Number.isFinite(noiseLevel);
 
     const status = hasNoiseLevel
