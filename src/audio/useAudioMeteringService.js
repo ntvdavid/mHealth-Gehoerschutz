@@ -141,6 +141,7 @@ export function useAudioMeteringService(options = {}) {
   );
 
   const [permissionGranted, setPermissionGranted] = useState(false);
+  const [permissionResolved, setPermissionResolved] = useState(false);
   const [isCalibrating, setIsCalibrating] = useState(false);
   const [calibrationProgress, setCalibrationProgress] = useState(null);
   const [calibration, setCalibration] = useState(null);
@@ -176,20 +177,24 @@ export function useAudioMeteringService(options = {}) {
 
   // ---- Berechtigung --------------------------------------------------------
   const requestPermission = useCallback(async () => {
-    const status = await AudioModule.requestRecordingPermissionsAsync();
-    setPermissionGranted(status.granted);
-    if (status.granted) {
-      await setAudioModeAsync({
-        allowsRecording: true,
-        playsInSilentMode: true,
-      });
-    }
-    return status.granted;
-  }, []);
+    try {
+      const status = 
+        await AudioModule.requestRecordingPermissionsAsync();
 
-  useEffect(() => {
-    requestPermission();
-  }, [requestPermission]);
+      setPermissionGranted(status.granted);
+
+      if (status.granted) {
+        await setAudioModeAsync({
+          allowsRecording: true,
+          playsInSilentMode: true,
+        });
+      }
+
+      return status.granted;
+    } finally {
+      setPermissionResolved(true);
+    }
+  }, []);
 
   // ---- Start/Stop mit Fallback für nicht unterstützte Audioquelle ---------
   const prepareRecorderRobust = useCallback(async () => {
@@ -432,6 +437,7 @@ export function useAudioMeteringService(options = {}) {
 
   return {
     permissionGranted,
+    permissionResolved,
     requestPermission,
 
     startRecording,
@@ -439,10 +445,11 @@ export function useAudioMeteringService(options = {}) {
     isRecording: recorderState?.isRecording ?? false,
 
     currentRawDbfs: recorderState?.metering ?? null,
-    currentCalibratedDb: recorderState?.metering
-      ? toCalibratedDb(recorderState.metering)
-      : null,
-    rawBuffer: rawBufferRef.current,
+    currentCalibratedDb: 
+      recorderState?.metering !== null &&
+      recorderState?.metering !== undefined
+        ? toCalibratedDb(recorderState.metering)
+        : null,
 
     runCalibration,
     confirmToneReady,
