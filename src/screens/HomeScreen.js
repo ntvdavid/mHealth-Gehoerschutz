@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View, Text, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import Header from "../components/header/Header";
@@ -16,8 +16,7 @@ import AboutAppScreen from "./AboutAppScreen";
 
 import { COLORS } from "../constants/colors";
 
-
-export default function HomeScreen() {
+export default function HomeScreen({ audioMeter, onOpenCalibration, }) {
     const [menuVisible, setMenuVisible] = useState(false);
     const [infoVisible, setInfoVisible] = useState(false);
     const [selectedCard, setSelectedCard] = useState(null);
@@ -25,6 +24,14 @@ export default function HomeScreen() {
     const [activeSettingsPage, setActiveSettingsPage] = useState(null);
 
     const noiseLevel = 69; // Beispielwert, danach API
+
+    const { 
+        currentCalibratedDb,
+        isRecording,
+        isCalibrating,
+        startRecording,
+        stopRecording,
+    } = audioMeter;
 
     if (activeSettingsPage === "notifications") {
         return (
@@ -63,7 +70,36 @@ export default function HomeScreen() {
                 <NoiseCircle 
                     noiseLevel={noiseLevel}  
                     onInfoPress={() => setInfoVisible(true)}
+                    noiseLevel={currentCalibratedDb}  
                 />
+
+                <View style={styles.measurementControls}>
+                    <TouchableOpacity
+                        style={[
+                            styles.measurementButton,
+                            isRecording && styles.measurementButtonDisabled,
+                        ]}
+                        onPress={startRecording}
+                        disabled={isRecording || isCalibrating}
+                    >
+                        <Text style={styles.measurementButtonText}>
+                            Messung starten
+                        </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={[
+                            styles.measurementButton,
+                            !isRecording && styles.measurementButtonDisabled,
+                        ]}
+                        onPress={stopRecording}
+                        disabled={!isRecording || isCalibrating}
+                    >
+                        <Text style={styles.measurementButtonText}>
+                            Messung stoppen
+                        </Text>
+                    </TouchableOpacity>
+                </View>
 
                 <View style={styles.statsContainer}>
                     <StatCard 
@@ -139,6 +175,10 @@ export default function HomeScreen() {
                 title={selectedCard?.title}
                 description={selectedCard?.description}
                 onClose={() => setSelectedCard(null)}
+                onCalibrationPress={() => {
+                    setMenuVisible(false);
+                    onOpenCalibration();
+                }}
             />
         </SafeAreaView>
     );
@@ -158,5 +198,24 @@ const styles = StyleSheet.create({
     statsContainer: {
         flexDirection: "row",
         gap: 12,
+    },
+    measurementControls: {
+        flexDirection: "row",
+        justifyContent: "center",
+        gap: 10,
+    },
+    measurementButton: {
+        backgroundColor: COLORS.primary,
+        borderRadius: 10,
+        paddingHorizontal: 14,
+        paddingVertical: 10,
+    },
+    measurementButtonDisabled: {
+        opacity: 0.4,
+    },
+    measurementButtonText: {
+        color: COLORS.background,
+        fontSize: 13,
+        fontWeight: "bold",
     },
 });

@@ -9,14 +9,22 @@ import { SPACING } from "../../constants/spacing";
 import { TYPOGRAPHY } from "../../constants/typography";
 import { getNoiseStatus } from "../../utils/getNoiseStatus";
 
-export default function NoiseCircle({ noiseLevel, onInfoPress }) {
-    const status = getNoiseStatus(noiseLevel);
+export default function NoiseCircle({ noiseLevel }) {
+    const hasNoiseLevel = Number.isFinite(noiseLevel);
+
+    const status = hasNoiseLevel
+        ? getNoiseStatus(noiseLevel)
+        : { text: "Nicht kalibriert", color: COLORS.textSecondary };
+
+    const displayNoiseLevel = hasNoiseLevel
+        ? Math.round(noiseLevel)
+        : "--";
 
     return (
         <Card style={styles.container}>
             <View style={[styles.circle, { borderColor: status.color }]}>
                 <View style={styles.dbContainer}>
-                    <Text style={styles.db}>{noiseLevel}</Text>
+                    <Text style={styles.db}>{displayNoiseLevel}</Text>
                     <Text style={styles.unit}>dB</Text>
 
                     <TouchableOpacity
@@ -38,10 +46,12 @@ export default function NoiseCircle({ noiseLevel, onInfoPress }) {
                 <Text style={[styles.status, { color: status.color }]}>
                     {status.text}
                 </Text>
-
-                <Text style={styles.subtitle}>
-                    Aktuelle Lautstärke
-                </Text>
+                {status.exposure && (
+                  <Text style={styles.exposure}>
+                    Max. Expositionsdauer:{"\n"}
+                    {status.exposure}
+                  </Text>
+                )}
             </View>
         </Card>
     );
@@ -88,5 +98,10 @@ const styles = StyleSheet.create({
     subtitle: {
         ...TYPOGRAPHY.body,
         color: COLORS.textSecondary,
+    },
+    exposure: {
+        ...TYPOGRAPHY.caption,
+        color: COLORS.textSecondary,
+        marginBottom: 15,
     }
 });

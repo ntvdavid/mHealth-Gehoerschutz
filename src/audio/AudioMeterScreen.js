@@ -3,8 +3,8 @@
  */
 import React, { useState } from 'react';
 import { View, Text, Button, StyleSheet, ScrollView, Alert } from 'react-native';
-import { useAudioMeteringService } from '../../useAudioMeteringService';
-import HistoryChart from '../HistoryChart';
+import { useAudioMeteringService } from './useAudioMeteringService';
+import HistoryChart from './HistoryChart';
 
 export default function AudioMeterScreen() {
   const {

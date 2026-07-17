@@ -19,6 +19,16 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "Erlaube die Anwendung den Zugriff auf dein Mikrofon.",
+          "recordAudioAndroid": true,
+          "enableBackgroundRecording": true
+        }
+      ]
+    ]
   }
 }
