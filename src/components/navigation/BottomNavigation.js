@@ -6,44 +6,39 @@ import { COLORS } from "../../constants/colors";
 import { SPACING } from "../../constants/spacing";
 import { TYPOGRAPHY } from "../../constants/typography";
 
-export default function BottomNavigation({
-    activeTab, 
-    onHomePressed,
-    onHistoryPressed, 
-    onTippsPressed
-})  {
+export default function BottomNavigation({ activeTab, onHomePress, onHistoryPress, onTippsPress})  {
     return (
         <View style={styles.container}>
             <NavItem
                 icon="bar-chart-2"
                 label="Verlauf"
                 active={activeTab === "history"}
-                onPressed={onHistoryPressed}
+                onPress={onHistoryPress}
             />
 
             <NavItem
                 icon="home"
                 label="Home"
                 active={activeTab === "home"}
-                onPressed={onHomePressed}
+                onPress={onHomePress}
             />
 
             <NavItem
                 icon="book-open"
                 label="Tipps"
                 active={activeTab === "tips"}
-                onPressed={onTippsPressed}
+                onPress={onTippsPress}
             />
 
         </View>
     );
 }
 
-function NavItem({ icon, label, active, onPressed }){
+function NavItem({ icon, label, active, onPress }){
     return  (
         <TouchableOpacity
             style={styles.item}
-            onPress={onPressed}
+            onPress={onPress}
         >
             <Feather
                 name={icon}

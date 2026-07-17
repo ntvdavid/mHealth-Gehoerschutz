@@ -53,7 +53,7 @@ export default function WeeklyReview() {
 
 const weeklyScreen = StyleSheet.create({
    view: {
-    flex: 1,
+    flexGrow: 1,
     backgroundColor: '#f8fafc',
   },
   tabContainer: {

@@ -6,7 +6,7 @@ import { COLORS } from "../../constants/colors";
 import { SPACING } from "../../constants/spacing";
 import { TYPOGRAPHY } from "../../constants/typography";
 
-export default function SideMenu({ visible, onClose }){ 
+export default function SideMenu({ visible, onClose, onCalibrationPress, onNotificationsPress, onPrivacyPress, onAboutPress }){ 
     return(
         <Modal
             visible={visible}
@@ -32,27 +32,27 @@ export default function SideMenu({ visible, onClose }){
                     </View>
 
                     <MenuItem
-                        title="Benarichtigung"
+                        title="Benachrichtigungen"
                         subtitle="Warnung & Hinweise verwalten"
-                        onPress={() => {}}
+                        onPress={onNotificationsPress}
                     />
 
                     <MenuItem
                         title="Grenzwert anpassen"
-                        subtitle="Eigene dB-Schwellenwerte setzen"
-                        onPress={() => {}}
+                        subtitle="Mikrofon kalibrieren und Grenzwerte einstellen"
+                        onPress={onCalibrationPress}
                     />
 
                     <MenuItem
                         title="Datenschutz"
                         subtitle="Daten & Berechtigung"
-                        onPress={() => {}}
+                        onPress={onPrivacyPress}
                     />
 
                     <MenuItem
                         title="Über die App"
-                        subtitle="Version, Impressum & Kontak"
-                        onPress={() => {}}
+                        subtitle="Version, Impressum & Kontakt"
+                        onPress={onAboutPress}
                     />
                 </View>
 

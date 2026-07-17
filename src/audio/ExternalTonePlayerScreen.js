@@ -21,7 +21,7 @@ import React, { useRef, useState, useCallback, useEffect } from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
 import { createAudioPlayer, setAudioModeAsync } from 'expo-audio';
 
-const TONE_ASSET = require('../assets/calibration-tone.wav');
+const TONE_ASSET = require('../../assets/calibration-tone.wav');
 
 export default function ExternalTonePlayerScreen() {
   const [isPlaying, setIsPlaying] = useState(false);

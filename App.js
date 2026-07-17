@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import React, { useEffect, useRef, useState } from 'react';
+import { Button, StyleSheet, Text, TouchableOpacity, View, Alert, } from 'react-native';
+import { SafeAreaProvider, SafeAreaView, } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useKeepAwake } from 'expo-keep-awake';
 import { Home, History, Lightbulb } from 'lucide-react-native';
 
 import HomeScreen from './src/screens/HomeScreen';
+import CalibrationScreen from './src/screens/CalibrationScreen';
+
 import FullscreenConsequencesScreen from './src/screens/recommendations/FullscreenConsequencesScreen';
 import FullscreenRecommendationsScreen from './src/screens/recommendations/FullscreenRecommendationsScreen';
 import HistoryScreen from './src/screens/HistoryScreen';
@@ -16,9 +18,19 @@ import TipsRecommendationsScreen from './src/screens/tips/TipsRecommendationsScr
 import TipsRisksScreen from './src/screens/tips/TipsRisksScreen';
 
 import TipsTabBar from './src/components/tips/TipsTabBar';
+import { hasSeenCalibrationPrompt, markCalibrationPromptSeen } from './src/audio/storage';
 
 import { COLORS } from './src/constants/colors';
-import { NotificationService } from './services/notification';
+import { NotificationService } from './src/services/notification';
+import { useAudioMeteringService } from './src/audio/useAudioMeteringService';
+
+import { audioMeteringEmitter } from './src/audio/useAudioMeteringService';
+
+const tabs = [
+  { id: "home", label: "Home" },
+  { id: "history", label: "Verlauf" },
+  { id: "tips", label: "Tipps" },
+];
 
 const tabs = [
   { id: "home", label: "Home" },
@@ -29,9 +41,111 @@ const tabs = [
 export default function App() {
   useKeepAwake();
 
+  const audioMeter = useAudioMeteringService({
+    referenceSpl: 70,
+    storageIntervalMs: 1000,
+  });
+
+  const [
+    notificationPermissionResolved,
+    setNotificationPermissionResolved,
+  ] = useState(false);
+
+  const calibrationPromptCheckedRef = useRef(false);
+  const microphonePermissionRequestedRef = useRef(false);
+
   useEffect(() => {
-    NotificationService.init();
+    const initializeNotifications = async () => {
+      try {
+        await NotificationService.init();
+      } catch (error) {
+        console.warn(
+          'Notification-Berechtigung konnte nicht initialisiert werden:',
+          error
+        );
+      } finally {
+        setNotificationPermissionResolved(true);
+      }
+    };
+    initializeNotifications();
   }, []);
+
+  useEffect(() => {
+    if (
+      !notificationPermissionResolved || microphonePermissionRequestedRef.current
+    ) {
+      return;
+    }
+
+    microphonePermissionRequestedRef.current = true;
+
+    audioMeter.requestPermission().catch((error) => {
+      console.warn(
+        'Mikrofonberechtigung konnte nicht angefragt werden:',
+          error
+      );
+    });
+  }, [
+    notificationPermissionResolved,
+    audioMeter.requestPermission,
+  ]);
+
+  useEffect(() => {
+    const allPermissionsResolved = 
+      audioMeter.permissionResolved &&
+      notificationPermissionResolved;
+
+    if (
+      !audioMeter.storageReady || !allPermissionsResolved || calibrationPromptCheckedRef.current
+    ) {
+      return;
+    }
+
+    calibrationPromptCheckedRef.current = true;
+
+    const checkCalibrationPrompt = async () => {
+      const hasSeenPrompt = await hasSeenCalibrationPrompt();
+
+      if (hasSeenPrompt || audioMeter.calibration) {
+        return;
+      }
+
+      setTimeout(() => {
+        Alert.alert(
+          'Kalibrierung erforderlich',
+          'Bevor Lautstärkewerte angezeigt werden können, solltest du das Mikrofon einmal kalibrieren.',
+          [
+            {
+              text: 'Abbrechen',
+              style: 'cancel',
+              onPress: async () => {
+                await markCalibrationPromptSeen();
+              },
+            },
+            {
+              text: 'Zur Kalibrierung',
+              onPress: async () => {
+                await markCalibrationPromptSeen();
+                setActiveTab('calibration');
+              },
+            },
+          ]
+          );
+        }, 400);
+      };
+
+      checkCalibrationPrompt().catch((error) => {
+        console.warn(
+          'Kalibrierungshinweis konnte nicht geprüft werden:',
+          error
+        );
+      });
+    }, [
+      audioMeter.storageReady,
+      audioMeter.permissionResolved,
+      audioMeter.calibration,
+      notificationPermissionResolved,
+    ]);
 
   // 1. HAUPT-NAVIGATION
   const [activeTab, setActiveTab] = useState("home");
@@ -41,14 +155,30 @@ export default function App() {
   const [tipsScreen, setTipsScreen] = useState('recommendations');
   const [alertFlowScreen, setAlertFlowScreen] = useState('recommendations');
 
-  function renderMainContent() {
+  // Funktion, um einen Lärm-Wert an den HomeScreen zu streamen
+  const triggerFakeLarm = (dbValue) => {
+    audioMeteringEmitter.emit({
+      rawDbfs: -Math.abs(dbValue), // Simuliert dbFS Pegel
+      calibratedDb: dbValue,       // Dein HomeScreen reagiert hierauf!
+      isRecording: true
+    });
+  };
+
+  const renderMainContent = () => {
     if (activeTab === "home") {
       return (
         <View style={styles.appShell}>
-          <HomeScreen />
+          <HomeScreen
+            audioMeter={audioMeter}
+            onOpenCalibration={() => setActiveTab('calibration')}
+            onNavigateToRecommendations={() => {
+              setAlertFlowScreen('recommendations');
+              setActiveTab('fullscreen');
+            }} 
+          />
 
           <View style={styles.homeTestButtons}>
-            <TouchableOpacity style={styles.demoButton} onPress={() => setActiveTab('fullscreen')}>
+            <TouchableOpacity style={styles.demoButton} onPress={() => triggerFakeLarm(102)}>
               <Text style={styles.demoButtonText}>Warnscreen testen</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.demoButton} onPress={() => setActiveTab('notification')}>
@@ -56,6 +186,19 @@ export default function App() {
             </TouchableOpacity>
           </View>
           <StatusBar style="auto" />
+        </View>
+      );
+    }
+
+    if (activeTab === 'calibration') {
+      return (
+        <View style={styles.appShell}>
+          <CalibrationScreen
+            audioMeter={audioMeter}
+            onBack={() => setActiveTab('home')}
+          />
+
+          <StatusBar style='auto'/>
         </View>
       );
     }
@@ -143,7 +286,7 @@ export default function App() {
           <Text style={styles.title}>Gehörschutz aktiv</Text>
           <Text style={styles.subtitle}>Der Bildschirm bleibt an, um dich durchgehend zu warnen.</Text>
           <View style={styles.buttonContainer}>
-            <Button title="Simuliere Lärm (85 dB)" onPress={() => NotificationService.triggerVolumeAlert(85)} color="#d9534f" />
+            <Button title="Simuliere Lärm (100 dB)" onPress={() => NotificationService.triggerVolumeAlert(85)} color="#d9534f" />
           </View>
           <View style={styles.buttonContainer}>
             <Button title="Stoppe Lärm-Warnung" onPress={() => NotificationService.cancelAlert()} color="#5cb85c" />
@@ -154,7 +297,7 @@ export default function App() {
     }
 
     return null;
-  }
+  };
 
   return (
     <SafeAreaProvider>

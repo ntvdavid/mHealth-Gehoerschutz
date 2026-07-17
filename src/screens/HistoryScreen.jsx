@@ -74,7 +74,7 @@ const historyScreen = StyleSheet.create({
   },
 
   scrollView: {
-    flex: 1,
+    flexGrow: 1,
     backgroundColor: '#f8fafc',
     paddingHorizontal: 20,
     paddingTop: 12,
