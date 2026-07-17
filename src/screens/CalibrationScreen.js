@@ -9,6 +9,7 @@ import NoiseCircle from "../components/home/NoiseCircle";
 import { COLORS } from "../constants/colors";
 import { SPACING } from "../constants/spacing";
 import { TYPOGRAPHY } from "../constants/typography";
+import { Scroll } from "lucide-react-native";
 
 const REFERENCE_TONE = require("../../assets/calibration-tone.wav");
 
@@ -172,21 +173,6 @@ export default function CalibrationScreen({ audioMeter, onBack }) {
                             >
                                 <Text style={styles.audioButtonText}>Messung stoppen</Text>
                             </TouchableOpacity>
-
-                            <TouchableOpacity
-                                style={styles.guideButton}
-                                onPress={() => setGuideVisible(true)}
-                            >
-                                <Feather
-                                    name="help-circle"
-                                    size={18}
-                                    color={COLORS.primary}
-                                />
-
-                                <Text style={styles.guideButtonText}>
-                                    Guide anzeigen
-                                </Text>
-                            </TouchableOpacity>
                         </View> 
 
                         <TouchableOpacity
@@ -239,7 +225,7 @@ export default function CalibrationScreen({ audioMeter, onBack }) {
                             <View style={styles.divider} />
 
                             <Text style={styles.referenceTitle}>
-                                Zweites Gerät als Referenzton
+                                 Referenzton abspielen
                             </Text>
 
                             <View style={styles.audioButtonRow}>
@@ -270,7 +256,141 @@ export default function CalibrationScreen({ audioMeter, onBack }) {
                                 </TouchableOpacity>
                             </View>
                         </View>
+
+                        <TouchableOpacity
+                            style={styles.guideButton}
+                            onPress={() => setGuideVisible(true)}
+                            >
+                            <Feather
+                                name="help-circle"
+                                size={18}
+                                color={COLORS.primary}
+                            />
+
+                                <Text style={styles.guideButtonText}>
+                                    Guide anzeigen
+                                </Text>
+                        </TouchableOpacity>
                     </ScrollView>
+                <Modal
+                    visible={guidVisible}
+                    transparent
+                    animationType="fade"
+                    onRequestClose={() => setGuideVisible(false)}
+                >
+                    <View style={styles.guideOverlay}>
+                        <View style={styles.guideModal}>
+                            <View style={styles.guideHeader}>
+                                <Text style={styles.guideTitle}>
+                                    So funktioniert die Kalibrierung
+                                </Text>
+
+                                <TouchableOpacity
+                                    style={styles.guideCloseButton}
+                                    onPress={() => setGuideVisible(false)}
+                                >
+                                    <Feather
+                                        name="x"
+                                        size={24}
+                                        color={COLORS.text}
+                                    />  
+                                </TouchableOpacity>
+                            </View>
+
+                            <ScrollView
+                                showsVerticalScrollIndicator={false}
+                            >
+                                <View style={styles.guideStep}>
+                                    <Text style={styles.guideStepNumber}>
+                                        1
+                                    </Text>
+
+                                    <View style={styles.guideStepContent}>
+                                        <Text style={styles.guideStepTitle}>
+                                            Ruhigen Raum vorbereiten
+                                        </Text>
+
+                                        <Text style={styles.guideStepText}>
+                                            Lege das zu kalibrierende Smartphone in einem möglichst ruhigen Raum ab.
+                                        </Text>
+                                    </View>
+                                </View>
+
+                                <View style={styles.guideStep}>
+                                    <Text style={styles.guideStepNumber}>
+                                        2
+                                    </Text>
+
+                                    <View style={styles.guideStepContent}>
+                                        <Text style={styles.guideStepTitle}>
+                                            Kalibrierung starten
+                                        </Text>
+
+                                        <Text style={styles.guideStepText}>
+                                            Drücke "Kalibrierung starten". Die App misst dann für einige Sekunden die ruhige Umgebung.
+                                        </Text>
+                                    </View>
+                                </View>
+
+                                <View style={styles.guideStep}>
+                                    <Text style={styles.guideStepNumber}>
+                                        3
+                                    </Text>
+
+                                    <View style={styles.guideStepContent}>
+                                        <Text style={styles.guideStepTitle}>
+                                            Referenzton abspielen
+                                        </Text>
+
+                                        <Text style={styles.guideStepText}>
+                                            Starte anschließend auf einem zweiten oder dein jetziges Gerät den Referenzton als Wiederholungsschleife. Stelle die Lautstärke hoch und positioniere das Gerät etwa 1–2 Meter entfernt.
+                                        </Text>
+                                    </View>
+                                </View>
+
+                                <View style={styles.guideStep}>
+                                    <Text style={styles.guideStepNumber}>
+                                        4
+                                    </Text>
+
+                                    <View style={styles.guideStepContent}>
+                                        <Text style={styles.guideStepTitle}>
+                                            Referenzton bestätigen
+                                        </Text>
+
+                                        <Text style={styles.guideStepText}>
+                                            Drücke auf dem messenden Smartphone „Referenzton läuft – bestätigen“ und lasse den Ton während der Messung weiterlaufen.
+                                        </Text>
+                                    </View>
+                                </View>
+
+                                <View style={styles.guideStep}>
+                                    <Text style={styles.guideStepNumber}>
+                                        5
+                                    </Text>
+
+                                    <View style={styles.guideStepContent}>
+                                        <Text style={styles.guideStepTitle}>
+                                            Messung verwenden
+                                        </Text>
+
+                                        <Text style={styles.guideStepText}>
+                                            Stoppe den Referenzton nach der Erfolgsmeldung. Danach kannst du die normale Lautstärkemessung starten.                                        </Text>
+                                    </View>
+                                </View>
+                            </ScrollView>
+
+                            <TouchableOpacity
+                                style={styles.guideConfirmButton}
+                                onPress={() => setGuideVisible(false)}
+                            >
+                                <Text style={styles.guideConfirmButtonText}>
+                                    Verstanden
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </Modal>
             </SafeAreaView>
         );
 }
@@ -380,5 +500,101 @@ const styles = StyleSheet.create({
         fontSize: 13,
         lineHeight: 19,
         textAlign: "center",
+    },
+    guideButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    alignSelf: "stretch",
+    marginTop: 24,
+    marginBottom: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderWidth: 1,
+    borderColor: COLORS.primary,
+    borderRadius: 10,
+    },
+    guideButtonText: {
+        color: COLORS.primary,
+        fontSize: 14,
+        fontWeight: "bold",
+    },
+    guideOverlay: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        padding: 20,
+        backgroundColor: "rgba(0, 0, 0, 0.45)",
+    },
+    guideModal: {
+        width: "100%",
+        maxWidth: 480,
+        maxHeight: "85%",
+        padding: 20,
+        borderRadius: 20,
+        backgroundColor: COLORS.background,
+    },
+    guideHeader: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        marginBottom: 20,
+    },
+    guideTitle: {
+        ...TYPOGRAPHY.h2,
+        flex: 1,
+        paddingRight: 12,
+        color: COLORS.text,
+    },
+    guideCloseButton: {
+        width: 36,
+        height: 36,
+        alignItems: "center",
+        justifyContent: "center",
+        borderRadius: 18,
+        backgroundColor: "#F1F4F4",
+    },
+    guideStep: {
+        flexDirection: "row",
+        gap: 12,
+        marginBottom: 18,
+    },
+    guideStepNumber: {
+        width: 30,
+        height: 30,
+        borderRadius: 15,
+        color: COLORS.background,
+        backgroundColor: COLORS.primary,
+        fontSize: 15,
+        fontWeight: "bold",
+        lineHeight: 30,
+        textAlign: "center",
+    },
+    guideStepContent: {
+        flex: 1,
+    },
+    guideStepTitle: {
+        color: COLORS.text,
+        fontSize: 15,
+        fontWeight: "bold",
+        marginBottom: 4,
+    },
+    guideStepText: {
+        color: COLORS.textSecondary,
+        fontSize: 13,
+        lineHeight: 19,
+    },
+    guideConfirmButton: {
+        alignItems: "center",
+        marginTop: 8,
+        paddingVertical: 12,
+        borderRadius: 10,
+        backgroundColor: COLORS.primary,
+    },
+    guideConfirmButtonText: {
+        color: COLORS.background,
+        fontSize: 14,
+        fontWeight: "bold",
     },
 });
