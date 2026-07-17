@@ -180,13 +180,6 @@ export default function HomeScreen({ audioMeter, onOpenCalibration, onNavigateTo
                 <WeekStats/>
             </ScrollView>
 
-            <BottomNavigation
-                activeTab="home"
-                onHomePress={() => {}}
-                onHistoryPress={() => {}}
-                onTipsPress={() => {}}
-            />
-
             <SideMenu
                 visible={menuVisible}
                 onClose={() => setMenuVisible(false)}
