@@ -31,6 +31,9 @@ import { NotificationService } from './services/notification';
 import { useAudioMeteringService } from './src/audio/useAudioMeteringService';
 import { getNoiseStatus } from './src/utils/getNoiseStatus';
 
+import { audioMeteringEmitter } from './src/audio/useAudioMeteringService';
+import { Home } from 'lucide-react-native';
+
 export default function App() {
   useKeepAwake();
 
@@ -196,6 +199,15 @@ function AppContent({
     setDemoMode('home');
   }
 
+  // Funktion, um einen Lärm-Wert an den HomeScreen zu streamen
+  const triggerFakeLarm = (dbValue) => {
+    audioMeteringEmitter.emit({
+      rawDbfs: -Math.abs(dbValue), // Simuliert dbFS Pegel
+      calibratedDb: dbValue,       // Dein HomeScreen reagiert hierauf!
+      isRecording: true
+    });
+  };
+
   if (demoMode === 'home') {
     return (
       <View style={styles.appShell}>
@@ -205,6 +217,7 @@ function AppContent({
             setDemoMode('calibration')
           } 
         />
+        <HomeScreen onNavigateToRecommendations={() => setDemoMode('fullmode')} />
 
         <View style={styles.homeTestButtons}>
           <TouchableOpacity
@@ -218,7 +231,7 @@ function AppContent({
 
           <TouchableOpacity
             style={styles.demoButton}
-            onPress={() => setDemoMode('fullscreen')}
+            onPress={() =>triggerFakeLarm(96)}
           >
             <Text style={styles.demoButtonText}>
               Warnscreen testen

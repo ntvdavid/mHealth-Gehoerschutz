@@ -45,6 +45,7 @@ export const NotificationService = {
 
     // Trigger Noise warning
     async triggerVolumeAlert(currentDb) {
+        this.cancelAlert(); 
 
         if(vibrationInterval) {
             clearInterval(vibrationInterval);

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ScrollView, StyleSheet, View, Text, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -14,9 +14,15 @@ import NotificationSettingsScreen from "./NotificationSettingsScreen";
 import PrivacySettingsScreen from "./PrivacySettingsScreen";
 import AboutAppScreen from "./AboutAppScreen";
 
+import NoiseAlertModal from "../components/layout/NoiseAlertModal";
+import {NotificationService} from "../services/notification";
+
+import { audioMeteringEmitter } from "../audio/useAudioMeteringService";
+
+
 import { COLORS } from "../constants/colors";
 
-export default function HomeScreen({ audioMeter, onOpenCalibration, }) {
+export default function HomeScreen({ audioMeter, onOpenCalibration, onNavigateToRecommendations }) {
     const [menuVisible, setMenuVisible] = useState(false);
     const [infoVisible, setInfoVisible] = useState(false);
     const [selectedCard, setSelectedCard] = useState(null);
@@ -24,6 +30,37 @@ export default function HomeScreen({ audioMeter, onOpenCalibration, }) {
     const [activeSettingsPage, setActiveSettingsPage] = useState(null);
 
     const noiseLevel = 69; // Beispielwert, danach API
+    const [noiseLevel, setNoiseLevel] = useState(69); // Beispielwert, danach API
+
+    useEffect(() => {
+        NotificationService.init();
+        
+        const unsubscribe = audioMeteringEmitter.on((sample) => {
+            // Hole kalibrierten Wert. Falls noch nicht kalibriert, nutze dBFS-Rohwert positiviert.
+            let currentDb = sample.calibratedDb;
+            if (currentDb === null || currentDb === undefined) {
+                currentDb = Math.abs(sample.rawDbfs); 
+            }
+
+            const roundedDb = Math.round(currentDb);
+            setNoiseLevel(roundedDb);
+
+            // 3. Wenn die Lautstärke >= 85 dB steigt und der Alarm noch nicht aktiv ist
+            if (roundedDb >= 85 && !alertVisible) {
+                setAlertVisible(true);
+                NotificationService.triggerVolumeAlert(roundedDb);
+            }
+        });
+
+        return () => {
+            unsubscribe();
+        };
+    }, [alertVisible]);
+
+    const handleCloseAlert = () => {
+        setAlertVisible(false);
+        NotificationService.cancelAlert(); // Stoppt die Vibration sofort
+    };
 
     const { 
         currentCalibratedDb,
@@ -180,6 +217,16 @@ export default function HomeScreen({ audioMeter, onOpenCalibration, }) {
                     onOpenCalibration();
                 }}
             />
+
+            <NoiseAlertModal
+                visible={alertVisible}
+                currentDb={noiseLevel}
+                onClose={() => {
+                    setAlertVisible(false);
+                    NotificationService.cancelAlert(); 
+                }}
+                onGoToRecommendations={onNavigateToRecommendations}
+            />  
         </SafeAreaView>
     );
 }
