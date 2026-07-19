@@ -14,6 +14,7 @@ import HistoryScreen from './src/screens/HistoryScreen';
 import WeeklyReview from './src/screens/WeeklyReview';
 
 import TipsConsequencesScreen from './src/screens/tips/TipsConsequencesScreen';
+import TipsKnowledgeScreen from './src/screens/tips/TipsKnowledgeScreen';
 import TipsRecommendationsScreen from './src/screens/tips/TipsRecommendationsScreen';
 import TipsRisksScreen from './src/screens/tips/TipsRisksScreen';
 
@@ -241,12 +242,7 @@ export default function App() {
             <TipsConsequencesScreen onBackToRecommendations={() => setTipsScreen('recommendations')} />
           )}
           
-          {tipsScreen === 'knowledge' && (
-            <View style={styles.placeholderScreen}>
-              <Text style={styles.placeholderTitle}>Wissen</Text>
-              <Text style={styles.placeholderText}>Dieser Screen wird von einem anderen Gruppenmitglied umgesetzt.</Text>
-            </View>
-          )}
+          {tipsScreen === 'knowledge' && <TipsKnowledgeScreen />}
           <StatusBar style="auto" />
         </View>
       );
@@ -455,22 +451,5 @@ const styles = StyleSheet.create({
   buttonContainer: {
     marginBottom: 15,
     width: '80%',
-  },
-  placeholderScreen: {
-    flex: 1,
-    paddingHorizontal: 24,
-    paddingTop: 24,
-    backgroundColor: COLORS.background || '#f8fafc',
-  },
-  placeholderTitle: {
-    color: COLORS.text || '#1e293b',
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  placeholderText: {
-    color: '#52616b',
-    fontSize: 14,
-    lineHeight: 21,
   },
 });
