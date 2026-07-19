@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { ScrollView, StyleSheet, View, Text, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -18,11 +18,9 @@ import NoiseAlertModal from "../components/layout/NoiseAlertModal";
 import {NotificationService} from "../services/notification";
 
 import { audioMeteringEmitter } from "../audio/useAudioMeteringService";
-
-
 import { COLORS } from "../constants/colors";
 
-export default function HomeScreen({ audioMeter, onOpenCalibration, onNavigateToRecommendations }) {
+export default function HomeScreen({ audioMeter, onOpenCalibration, onNavigateToRecommendations, onNavigateToNotificationTest }) {
     const [menuVisible, setMenuVisible] = useState(false);
     const [infoVisible, setInfoVisible] = useState(false);
     const [selectedCard, setSelectedCard] = useState(null);
@@ -31,10 +29,17 @@ export default function HomeScreen({ audioMeter, onOpenCalibration, onNavigateTo
 
     const [activeSettingsPage, setActiveSettingsPage] = useState(null);
 
+    const isDemoMode = useRef(false);
+
     useEffect(() => {
         NotificationService.init();
         
         const unsubscribe = audioMeteringEmitter.on((sample) => {
+
+            if (isDemoMode.current) {
+                return;
+            }
+
             if (!Number.isFinite(sample.calibratedDb)) {
                 return;
             }
@@ -55,10 +60,13 @@ export default function HomeScreen({ audioMeter, onOpenCalibration, onNavigateTo
         };
     }, [alertVisible]);
 
-    const handleCloseAlert = () => {
-        setAlertVisible(false);
-        NotificationService.cancelAlert(); // Stoppt die Vibration sofort
-    };
+    const handleTriggerDemoAlarm = () => {
+        isDemoMode.current = true;
+        const DEMO_DB_VALUE = 102;
+        setNoiseLevel(DEMO_DB_VALUE);
+        setAlertVisible(true);
+        NotificationService.triggerVolumeAlert(DEMO_DB_VALUE);
+    }
 
     const { 
         currentCalibratedDb,
@@ -106,6 +114,15 @@ export default function HomeScreen({ audioMeter, onOpenCalibration, onNavigateTo
                     noiseLevel={currentCalibratedDb}  
                     onInfoPress={() => setInfoVisible(true)}
                 />
+
+                <View style={styles.demoButtonCenterContainer}>
+                    <TouchableOpacity
+                        style={styles.demoButtonCenter}
+                        onPress={handleTriggerDemoAlarm}
+                    >
+                        <Text style={styles.demoButtonText}>⚠ Demo: Alarm auslösen</Text>
+                    </TouchableOpacity>
+                </View>
 
                 <View style={styles.measurementControls}>
                     <TouchableOpacity
@@ -194,6 +211,10 @@ export default function HomeScreen({ audioMeter, onOpenCalibration, onNavigateTo
                     setMenuVisible(false);
                     setActiveSettingsPage("about");
                 }}
+                onNotificationTestPress={() => {
+                    setMenuVisible(false);
+                    onNavigateToNotificationTest();
+                }}
             />
 
             <DBInfo
@@ -213,6 +234,7 @@ export default function HomeScreen({ audioMeter, onOpenCalibration, onNavigateTo
                 currentDb={noiseLevel ?? 0}
                 onClose={() => {
                     setAlertVisible(false);
+                    isDemoMode.current = false; // Reset demo mode when closing the alert
                     NotificationService.cancelAlert();
                 }}
                 onGoToRecommendations={onNavigateToRecommendations}
@@ -231,6 +253,25 @@ const styles = StyleSheet.create({
         paddingTop: 12,
         paddingBottom: 30,
         gap: 16,
+    },
+    demoButtonCenterContainer: {
+        alignItems: "center",
+        width: "100%",
+        marginVertical: 4,
+    },
+    demoButtonCenter: {
+        backgroundColor: "#ffebee",
+        paddingVertical: 8,
+        paddingHorizontal: 18,
+        borderWidth: 1,
+        borderRadius: 20,
+        borderColor: COLORS.secondary,
+    },
+    demoButtonText: {
+        color: COLORS.warning,
+        fontWeight: "600",
+        fontSize: 13,
+        textAlign: "center",
     },
     statsContainer: {
         flexDirection: "row",
