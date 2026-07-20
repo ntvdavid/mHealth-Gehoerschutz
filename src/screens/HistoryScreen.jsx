@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState} from 'react'
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
 import { ChevronLeft, ChevronRight, AlertTriangle } from "lucide-react-native";
 
@@ -7,8 +7,25 @@ import { HighlightCard, HighlightCardHeader, HighlightCardTitle, HighlightCardCo
 import StatCard from "../components/home/StatCard";
 import { COLORS } from "../constants/colors";
 import TrendBanner from '../components/ui/TrendBanner';
+import { getDataForDate } from '../utils/FakeDataBase';
 
 export default function HistoryScreen() {
+
+  const [selectedDate, setSelectedDate] = useState("2026-07-17");
+  const data = getDataForDate(selectedDate);
+  const displayDate = selectedDate.split('-').reverse().join('.');
+
+  const changeDay = (offset) => {
+    const currentDate = new Date(selectedDate);
+    currentDate.setDate(currentDate.getDate() + offset);
+    const newDateString = currentDate.toISOString().split('T')[0];
+    setSelectedDate(newDateString);
+  };
+
+  const highestValue = data.length > 0 ? Math.max(...data.map(item => item.value)) : 0;
+  const averageValue = data.length > 0 ? (data.reduce((sum, item) => sum + item.value, 0) / data.length).toFixed(2) : 0;
+  const warningThreshold = 85; // Example threshold for warning
+
   return (
     <View style={historyScreen.view}>
       <ScrollView contentContainerStyle={historyScreen.scrollView} showsVerticalScrollIndicator={false}>
@@ -18,37 +35,48 @@ export default function HistoryScreen() {
         </Text>
 
         <View style={historyScreen.datePickerContainer}>
-          <TouchableOpacity style={historyScreen.iconButtonChevron}>
+          {/* Pfeil nach Links: -1 Tag */}
+          <TouchableOpacity
+            style={historyScreen.iconButtonChevron}
+            onPress={() => changeDay(-1)}
+          >
             <ChevronLeft size={16} color="#334155" />
           </TouchableOpacity>
+
           <Text style={historyScreen.dateText}>
-            DATE AKTUALISIEREN
+            {displayDate}
           </Text>
-          <TouchableOpacity style={historyScreen.iconButtonChevron}>
+
+          {/* Pfeil nach Rechts: +1 Tag */}
+          <TouchableOpacity
+            style={historyScreen.iconButtonChevron}
+            onPress={() => changeDay(1)}
+          >
             <ChevronRight size={16} color="#334155" />
           </TouchableOpacity>
         </View>
 
         <View style={historyScreen.statsContainer}>
           <StatCard
-            title="Durchschnitt"
-            value="?%"
+            title="Ø Pegel"
+            value={averageValue}
+            subtitle=" dB"
           />
 
           <StatCard
             title="Peak"
-            value="?"
-            color={COLORS.warning}
+            value={highestValue}
+            color= {highestValue >= warningThreshold ? COLORS.warning : COLORS.text}
           />
 
           <StatCard
             title="Schädl. Bereich"
-            value="? dB"
+            value="? min"
           />
         </View>
 
 
-        <TrendBanner />
+        <TrendBanner data={data}/>
 
 
         <HighlightCard>
@@ -91,7 +119,8 @@ const historyScreen = StyleSheet.create({
 
   statsContainer: {
     flexDirection: "row",
-    gap: 12,
+    gap: 6,
+    justifyContent: 'space-between',
   },
 
   datePickerContainer: {
@@ -122,7 +151,7 @@ const historyScreen = StyleSheet.create({
   },
 
   dateText: {
-    fontSize: 15,
+    fontSize: 18,
     fontWeight: '600',
     color: '#1e293b',
 

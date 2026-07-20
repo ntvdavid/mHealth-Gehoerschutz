@@ -22,37 +22,47 @@ export default function WeeklyReview() {
           </HighlightCardContent>
         </HighlightCard>
 
-
-        <Card>
+        <View style={weeklyScreen.scoreContainer}>
+          <Card style={{ flex: 1, marginRight: 8 }}>
+          <StatCard
+            title="Dein Hearing Score"
+            value="GUT"
+            subtitle="90/100"
+            color={COLORS.primary}
+          />
           <ScoringRing />
-        </Card>
+          </Card>
+        </View>
 
         <View style={weeklyScreen.statsContainer}>
           <StatCard
-            title="Durchschnitt"
-            value="?%"
+            title="Lautester Tag"
+            subtitle="90 dB"
+            value="Mittwoch"
+            color={COLORS.orange}
           />
-
           <StatCard
-            title="Peak"
-            value="?"
-            color={COLORS.warning}
+            title="Sicherster Tag"
+            subtitle="70 dB"
+            value="Freitag"
+            color={COLORS.green}
           />
-
           <StatCard
-            title="Schädl. Bereich"
-            value="? dB"
+            title="Durchschnittl. Pegel"
+            value="80 dB"
+            color={COLORS.blue}
           />
         </View>
 
         <WeekStats />
+
       </ScrollView>
     </View>
   );
 }
 
 const weeklyScreen = StyleSheet.create({
-   view: {
+  view: {
     flexGrow: 1,
     backgroundColor: '#f8fafc',
   },
@@ -61,16 +71,20 @@ const weeklyScreen = StyleSheet.create({
     backgroundColor: '#22c55e',
     alignItems: 'center',
     justifyContent: 'center',
-
-
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-
     marginHorizontal: 8,
   },
   statsContainer: {
     flexDirection: "row",
-    gap: 12,
+    gap: 6,
+    justifyContent: 'space-between',
+  },
+  scoreContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    paddingVertical: 10,
   },
   titelText: {
     fontSize: 20,
@@ -78,7 +92,7 @@ const weeklyScreen = StyleSheet.create({
     color: '#000000',
   },
   scrollView: {
-    flex: 1,
+    flexGrow: 1,
     backgroundColor: '#f8fafc',
     paddingHorizontal: 20,
     paddingTop: 12,
