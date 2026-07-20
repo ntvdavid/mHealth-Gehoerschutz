@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
 import { HighlightCard, HighlightCardHeader, HighlightCardTitle, HighlightCardContent } from '../components/ui/HighlightCard';
 import { Card } from '../components/ui/Card';
-import ScoringRing from '../components/ui/ScoringRing';
+import ScoreChart from '../components/ui/ScoreChart';
 import { COLORS } from '../constants/colors';
 import StatCard from '../components/home/StatCard';
 import WeekStats from '../components/home/WeekStats';
@@ -27,10 +27,10 @@ export default function WeeklyReview() {
           <StatCard
             title="Dein Hearing Score"
             value="GUT"
-            subtitle="90/100"
+            subtitle="Je besser dein Score, desto besser schützt du dein Gehör."
             color={COLORS.primary}
           />
-          <ScoringRing />
+          <ScoreChart score={65} />
           </Card>
         </View>
 
