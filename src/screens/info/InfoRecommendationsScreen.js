@@ -4,12 +4,12 @@ import { ArrowRight } from 'lucide-react-native';
 import { COLORS } from '../../constants/colors';
 
 import PrimaryButton from '../../components/buttons/PrimaryButton';
-import TipsInfoLayout from '../../components/layout/TipsInfoLayout';
+import InfoLayout from '../../components/layout/InfoLayout';
 import RecommendationsContent from '../../components/recommendations/RecommendationsContent';
 
-export default function TipsRecommendationsScreen({ onShowConsequences }) {
+export default function InfoRecommendationsScreen({ onShowConsequences }) {
   return (
-    <TipsInfoLayout
+    <InfoLayout
       footer={
         <PrimaryButton
           title="Mehr über die Folgen erfahren"
@@ -19,6 +19,6 @@ export default function TipsRecommendationsScreen({ onShowConsequences }) {
       }
     >
       <RecommendationsContent />
-    </TipsInfoLayout>
+    </InfoLayout>
   );
 }

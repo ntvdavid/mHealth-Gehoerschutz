@@ -1,46 +1,68 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import TipsSectionHeader from '../tips/TipsSectionHeader';
+import InfoSectionHeader from '../info/InfoSectionHeader';
 import RecommendationAccordion from './RecommendationAccordion';
+import InfoCardIcon from '../info/InfoCardIcon';
 import { COLORS } from '../../constants/colors';
+
+const earProtectionIcon = require('../../../assets/info/recommendations/Ohrschutz nutzen.png');
+const reduceVolumeIcon = require('../../../assets/info/recommendations/Lautstärke reduzieren.png');
+const distanceIcon = require('../../../assets/info/recommendations/Abstand halten.png');
+const breaksIcon = require('../../../assets/info/recommendations/Lärmpausen.png');
+const routineIcon = require('../../../assets/info/recommendations/Vorher Während Danach.png');
+const situationsIcon = require('../../../assets/info/recommendations/Situationsbezogene Infos.png');
+const recoveryIcon = require('../../../assets/info/recommendations/Ruhe & Erholung.png');
 
 export default function RecommendationsContent() {
   return (
     <>
-      <TipsSectionHeader title="Was du jetzt tun kannst">
-        Schütze dein Gehör direkt in einer lauten Umgebung. Diese Tipps helfen
+      <InfoSectionHeader title="Was du jetzt tun kannst">
+        Schütze dein Gehör direkt in einer lauten Umgebung. Diese Informationen helfen
         dir, dein Risiko zu senken und bewusster mit Lärm umzugehen.
-      </TipsSectionHeader>
+      </InfoSectionHeader>
 
       <View style={styles.accordionList}>
-        <RecommendationAccordion title="Ohrschutz nutzen" defaultOpen>
+        <RecommendationAccordion
+          title="Ohrschutz nutzen"
+          icon={earProtectionIcon}
+          defaultOpen
+        >
           Nutze Ohrstöpsel oder Kapselgehörschutz, wenn du dich in lauten
           Umgebungen befindest.
-        </RecommendationAccordion>
+        </RecommendationAccordion>  
 
-        <RecommendationAccordion title="Lautstärke reduzieren">
+        <RecommendationAccordion
+          title="Lautstärke reduzieren"
+          icon={reduceVolumeIcon}
+        >
           Stelle Musik, Videos oder Telefonate leiser ein, besonders wenn du
           Kopfhörer über längere Zeit nutzt.
         </RecommendationAccordion>
 
-        <RecommendationAccordion title="Abstand zur Lärmquelle halten">
+        <RecommendationAccordion
+          title="Abstand zur Lärmquelle halten"
+          icon={distanceIcon}
+        >
           Je weiter du von Lautsprechern, Maschinen oder Verkehr entfernt bist,
           desto geringer ist die Belastung für dein Gehör.
         </RecommendationAccordion>
 
-        <RecommendationAccordion title="Lärmpausen einlegen">
+        <RecommendationAccordion
+          title="Lärmpausen einlegen"
+          icon={breaksIcon}
+        >
           Gönne deinen Ohren regelmäßig ruhige Pausen, damit sie sich nach hoher
           Belastung erholen können.
         </RecommendationAccordion>
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>Was du generell tun kannst</Text>
-        <Text style={styles.cardText}>
-          Gute Vorbereitung hilft dir, laute Situationen bewusster zu erleben
-          und dein Gehör langfristig zu schützen.
-        </Text>
+        <RecommendationCardHeader
+          icon={routineIcon}
+          title="Was du generell tun kannst"
+          text="Gute Vorbereitung hilft dir, laute Situationen bewusster zu erleben und dein Gehör langfristig zu schützen."
+        />
 
         <View style={styles.stepList}>
           <StepItem
@@ -59,18 +81,22 @@ export default function RecommendationsContent() {
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>Situationsbezogene Tipps</Text>
+        <RecommendationCardHeader
+          icon={situationsIcon}
+          title="Situationsbezogene Infos"
+          text="Passe deinen Gehörschutz an die Situation an, damit Schutz im Alltag leichter wird."
+        />
 
-        <View style={styles.tipList}>
-          <TipItem
+        <View style={styles.infoList}>
+          <SituationInfoItem
             title="Kopfhörer"
             text="Bleibe möglichst unter 60 % der maximalen Lautstärke. Gut sitzende oder geräuschreduzierende Kopfhörer helfen, weniger laut hören zu müssen."
           />
-          <TipItem
+          <SituationInfoItem
             title="Konzert / Club"
             text="Trage Ohrstöpsel und stelle dich nicht direkt neben Lautsprecher. Schon etwas Abstand kann die Belastung senken."
           />
-          <TipItem
+          <SituationInfoItem
             title="Arbeit / Maschinen"
             text="Verwende geeigneten Gehörschutz konsequent, auch wenn die laute Tätigkeit nur kurz dauert."
           />
@@ -78,14 +104,26 @@ export default function RecommendationsContent() {
       </View>
 
       <View style={styles.ruleBox}>
-        <Text style={styles.cardTitle}>Warum Pausen wichtig sind</Text>
-        <Text style={styles.cardText}>
-          Ruhige Phasen helfen deinen Ohren, sich nach Belastung zu erholen. Je
-          früher du auf Warnzeichen reagierst, desto besser kannst du dein Gehör
-          schützen.
-        </Text>
+        <RecommendationCardHeader
+          icon={recoveryIcon}
+          title="Warum Pausen wichtig sind"
+          text="Ruhige Phasen helfen deinen Ohren, sich nach Belastung zu erholen. Je früher du auf Warnzeichen reagierst, desto besser kannst du dein Gehör schützen."
+        />
       </View>
     </>
+  );
+}
+
+function RecommendationCardHeader({ icon, title, text }) {
+  return (
+    <View style={styles.cardHeader}>
+      <InfoCardIcon source={icon} size={72} />
+
+      <View style={styles.cardHeaderText}>
+        <Text style={styles.cardTitle}>{title}</Text>
+        <Text style={styles.cardText}>{text}</Text>
+      </View>
+    </View>
   );
 }
 
@@ -98,11 +136,11 @@ function StepItem({ label, text }) {
   );
 }
 
-function TipItem({ title, text }) {
+function SituationInfoItem({ title, text }) {
   return (
-    <View style={styles.tipItem}>
-      <Text style={styles.tipTitle}>{title}</Text>
-      <Text style={styles.tipText}>{text}</Text>
+    <View style={styles.infoItem}>
+      <Text style={styles.infoTitle}>{title}</Text>
+      <Text style={styles.infoText}>{text}</Text>
     </View>
   );
 }
@@ -156,22 +194,22 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
   },
-  tipList: {
+  infoList: {
     gap: 12,
     marginTop: 8,
   },
-  tipItem: {
+  infoItem: {
     borderTopWidth: 1,
     borderTopColor: '#e2e8f0',
     paddingTop: 12,
   },
-  tipTitle: {
+  infoTitle: {
     color: COLORS.text || '#1e293b',
     fontSize: 14,
     fontWeight: 'bold',
     marginBottom: 4,
   },
-  tipText: {
+  infoText: {
     color: '#64748b',
     fontSize: 14,
     lineHeight: 21,
@@ -182,5 +220,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#b2dfdb',
     padding: 16,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+  },
+  cardHeaderText: {
+    flex: 1,
   },
 });

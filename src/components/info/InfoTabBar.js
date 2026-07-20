@@ -3,7 +3,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { COLORS } from '../../constants/colors';
 
-export default function TipsTabBar({ activeTab, onChangeTab }) {
+export default function InfoTabBar({ activeTab, onChangeTab }) {
   return (
     <View style={styles.container}>
       <TouchableOpacity
