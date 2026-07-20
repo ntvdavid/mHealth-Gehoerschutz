@@ -170,16 +170,9 @@ export default function App() {
               setAlertFlowScreen('recommendations');
               setActiveTab('fullscreen');
             }} 
+            onNavigateToNotificationTest={() => setActiveTab('notification')}
           />
 
-          <View style={styles.homeTestButtons}>
-            <TouchableOpacity style={styles.demoButton} onPress={() => triggerFakeLarm(102)}>
-              <Text style={styles.demoButtonText}>Warnscreen testen</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.demoButton} onPress={() => setActiveTab('notification')}>
-              <Text style={styles.demoButtonText}>Notification testen</Text>
-            </TouchableOpacity>
-          </View>
           <StatusBar style="auto" />
         </View>
       );
@@ -276,7 +269,7 @@ export default function App() {
           <Text style={styles.title}>Gehörschutz aktiv</Text>
           <Text style={styles.subtitle}>Der Bildschirm bleibt an, um dich durchgehend zu warnen.</Text>
           <View style={styles.buttonContainer}>
-            <Button title="Simuliere Lärm (100 dB)" onPress={() => NotificationService.triggerVolumeAlert(85)} color="#d9534f" />
+            <Button title="Simuliere Lärm-Warnung" onPress={() => NotificationService.triggerVolumeAlert(85)} color="#d9534f" />
           </View>
           <View style={styles.buttonContainer}>
             <Button title="Stoppe Lärm-Warnung" onPress={() => NotificationService.cancelAlert()} color="#5cb85c" />
@@ -291,7 +284,7 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
+      <View style={styles.safeArea}>
         <View style={styles.flex1}>
           {renderMainContent()}
         </View>
@@ -319,7 +312,7 @@ export default function App() {
             })}
           </View>
         )}
-      </SafeAreaView>
+      </View>
     </SafeAreaProvider>
   );
 }
