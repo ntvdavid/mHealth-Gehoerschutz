@@ -2,18 +2,18 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { ChevronRight, TriangleAlert, ShieldIcon, Baby, Tv, MusicIcon, Plane, Mic, HeadphonesIcon } from 'lucide-react-native';
 import ScoringRing from '../../components/ui/ScoringRing';
-import TipsInfoLayout from '../../components/layout/TipsInfoLayout';
-import TipsSectionHeader from '../../components/tips/TipsSectionHeader';
+import InfoLayout from '../../components/layout/InfoLayout';
+import InfoSectionHeader from '../../components/info/InfoSectionHeader';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '../../components/ui/Card';
 import StatCard from '../../components/home/StatCard';
 import { HighlightCard, HighlightCardContent } from '../../components/ui/HighlightCard';
 
-export default function TipsKnowledgeScreen() {
+export default function InfoKnowledgeScreen() {
   return (
-    <TipsInfoLayout>
-      <TipsSectionHeader title="Wusstest du schon?">
+    <InfoLayout>
+      <InfoSectionHeader title="Wusstest du schon?">
         Wissen, das dein Gehör schützt. Hier findest du alles, was du über Lärm, Hörverlust und Prävention wissen musst.
-      </TipsSectionHeader>
+      </InfoSectionHeader>
 
       <Card style={styles.card}>
         <CardHeader style={styles.cardHeader}>
@@ -76,8 +76,8 @@ export default function TipsKnowledgeScreen() {
         </CardFooter>
       </Card>
 
-      <TipsSectionHeader title="So laut ist dein Alltag">
-      </TipsSectionHeader>
+      <InfoSectionHeader title="So laut ist dein Alltag">
+      </InfoSectionHeader>
 
       <StatCard value={<Text><Baby /></Text>} subtitle="dB" color="#007a7a" />
       <StatCard value={<Text><Tv /></Text>} subtitle="dB" color="#007a7a" />
@@ -102,7 +102,7 @@ export default function TipsKnowledgeScreen() {
         </HighlightCardContent>
       </HighlightCard>
 
-    </TipsInfoLayout>
+    </InfoLayout>
   );
 }
 

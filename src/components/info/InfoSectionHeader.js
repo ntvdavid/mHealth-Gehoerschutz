@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { COLORS } from '../../constants/colors';
 
-export default function TipsSectionHeader({ title, children }) {
+export default function InfoSectionHeader({ title, children }) {
   return (
     <View>
       <Text style={styles.title}>{title}</Text>
