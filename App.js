@@ -193,7 +193,10 @@ export default function App() {
 
     if (activeTab === "history") {
       return (
-        <View style={styles.flex1}>
+        <SafeAreaView 
+          style={styles.flex1}
+          edges={['top']}
+        >
           <View style={styles.historyToggleContainer}>
             {(["Tagesrückblick", "Wochenrückblick"]).map((label) => (
               <TouchableOpacity
@@ -216,13 +219,16 @@ export default function App() {
           <View style={styles.historyContentContainer}>
             {historyTab === "Tagesrückblick" ? <HistoryScreen /> : <WeeklyReview />}
           </View>
-        </View>
+        </SafeAreaView >
       );
     }
 
     if (activeTab === "tips") {
       return (
-        <View style={styles.appShell}>
+        <SafeAreaView
+          style={styles.appShell}
+          edges={['top']}
+        >
           <TipsTabBar activeTab={tipsScreen === 'consequences' ? 'recommendations' : tipsScreen} onChangeTab={setTipsScreen} />
 
           {tipsScreen === 'risks' && <TipsRisksScreen />}
@@ -237,7 +243,7 @@ export default function App() {
           
           {tipsScreen === 'knowledge' && <TipsKnowledgeScreen />}
           <StatusBar style="auto" />
-        </View>
+        </SafeAreaView>
       );
     }
 
