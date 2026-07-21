@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
-import {TrendingDown, TrendingUp} from 'lucide-react-native';
+import { TrendingDown, TrendingUp } from 'lucide-react-native';
 
 
 import { HighlightCard, HighlightCardContent } from '../components/ui/HighlightCard';
@@ -8,12 +8,15 @@ import { Card } from '../components/ui/Card';
 import ScoreChart from '../components/ui/ScoreChart';
 import { COLORS } from '../constants/colors';
 import StatCard from '../components/home/StatCard';
+import StatCardModal from "../components/home/StatCardModal";
 import WeekStats from '../components/home/WeekStats';
 
 export default function WeeklyReview() {
 
+  const [selectedCard, setSelectedCard] = useState(null);
+
   //Später kommt dieser Score wahrscheinlich aus einer Datenbank oder über "props"
-  const score = 30; 
+  const score = 30;
 
   let cardColor = '';
   let fontColor = '';
@@ -48,7 +51,7 @@ export default function WeeklyReview() {
   return (
     <View style={weeklyScreen.view}>
       <ScrollView contentContainerStyle={weeklyScreen.scrollView}>
-        
+
         <HighlightCard>
           <HighlightCardContent>
             <View style={[weeklyScreen.warningContainer, { backgroundColor: cardColor }]}>
@@ -61,7 +64,7 @@ export default function WeeklyReview() {
         </HighlightCard>
 
         <View style={weeklyScreen.scoreContainer}>
-          <Card style={{ flex: 1, marginRight: 8 }}>
+          <Card style={{ flex: 1, marginRight: 8, borderWidth: 0, shadowOpacity: 0, elevation: 0 }}>
             <StatCard
               title="Dein Hearing Score"
               value={evaluation}
@@ -78,21 +81,47 @@ export default function WeeklyReview() {
             subtitle="90 dB"
             value="Mittwoch"
             color={COLORS.orange}
+            onPress={() =>
+              setSelectedCard({
+                title: "Lautester Tag",
+                description: "Der Tag in dieser Woche mit der höchsten Lärmbelastung für dein Gehör.",
+              })
+            }
           />
           <StatCard
             title="Sicherster Tag"
             subtitle="70 dB"
             value="Freitag"
             color={COLORS.green}
+            onPress={() =>
+              setSelectedCard({
+                title: "Sicherster Tag",
+                description: "Der Tag in dieser Woche mit der geringsten Lärmbelastung für dein Gehör.",
+              })
+            }
           />
           <StatCard
             title="Durchschnittl. Pegel"
             value="80 dB"
             color={COLORS.blue}
+            onPress={() =>
+              setSelectedCard({
+                title: "Durchschnittlicher Pegel",
+                description: "Die durchschnittliche Lautstärke über die gesamte Woche hinweg.",
+              })
+            }
           />
         </View>
 
         <WeekStats />
+
+
+        <StatCardModal
+          visible={selectedCard !== null}
+          title={selectedCard?.title}
+          description={selectedCard?.description}
+          onClose={() => setSelectedCard(null)}
+        />
       </ScrollView>
     </View>
   );
@@ -120,16 +149,15 @@ const weeklyScreen = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    paddingVertical: 10,
+    paddingVertical: 3,
+    backgroundColor: "transparent"
   },
-  
-  
   warningContainer: {
     height: 160,
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 20, 
+    paddingHorizontal: 20,
   },
   warningText: {
     fontWeight: 'bold',

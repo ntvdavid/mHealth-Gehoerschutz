@@ -11,7 +11,7 @@ export default function DateSelector({ selectedDate, onDateChange, children }) {
       setShowPicker(false);
     }
     
-    // Wenn der Nutzer abbricht
+    
     if (event.type === 'dismissed') return;
 
     if (selected) {
@@ -23,13 +23,12 @@ export default function DateSelector({ selectedDate, onDateChange, children }) {
     }
   };
 
-  // 🍎 iOS LÖSUNG: Wir zeigen dauerhaft den nativen grauen Button. Ein Klick reicht!
   if (Platform.OS === 'ios') {
     return (
       <DateTimePicker
         value={new Date(selectedDate)}
         mode="date"
-        display="compact" // Das erzwingt Apples grauen Button
+        display="compact"
         onChange={handleDateChange}
         minimumDate={new Date('2026-06-22')}
         maximumDate={new Date('2026-07-22')}
@@ -37,7 +36,6 @@ export default function DateSelector({ selectedDate, onDateChange, children }) {
     );
   }
 
-  // 🤖 ANDROID LÖSUNG: Dein Text bleibt der Button. Ein Klick -> Pop-up!
   return (
     <>
       <TouchableOpacity activeOpacity={0.7} onPress={() => setShowPicker(true)}>

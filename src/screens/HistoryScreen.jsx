@@ -1,10 +1,12 @@
-import React, {useState} from 'react'
+import React, { useState } from 'react'
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
 import { ChevronLeft, ChevronRight, AlertTriangle } from "lucide-react-native";
+import { TrendingDown, TrendingUp } from 'lucide-react-native';
 
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card';
 import { HighlightCard, HighlightCardHeader, HighlightCardTitle, HighlightCardContent } from '../components/ui/HighlightCard';
 import StatCard from "../components/home/StatCard";
+import StatCardModal from "../components/home/StatCardModal";
 import { COLORS } from "../constants/colors";
 import TrendBanner from '../components/ui/TrendBanner';
 import { getDataForDate } from '../utils/FakeDataBase';
@@ -13,7 +15,8 @@ import DateSelector from '../components/ui/DateSelector';
 export default function HistoryScreen() {
 
   const [selectedDate, setSelectedDate] = useState("2026-07-17");
-  const data = getDataForDate(selectedDate);
+  const [selectedCard, setSelectedCard] = useState(null);
+  const { data, dangerous } = getDataForDate(selectedDate);
   const displayDate = selectedDate.split('-').reverse().join('.');
 
   const changeDay = (offset) => {
@@ -26,6 +29,31 @@ export default function HistoryScreen() {
   const highestValue = data.length > 0 ? Math.max(...data.map(item => item.value)) : 0;
   const averageValue = data.length > 0 ? (data.reduce((sum, item) => sum + item.value, 0) / data.length).toFixed(2) : 0;
   const warningThreshold = 85; // Example threshold for warning
+
+  let cardColor = '';
+  let fontColor = '';
+  let warningMessage = '';
+  let icon = null;
+
+  const avgDb = parseFloat(averageValue);
+
+  if (avgDb < 70) {
+    cardColor = '#dcfce7'; // Grün
+    fontColor = '#166534';
+    warningMessage = 'Alles im grünen Bereich! Dein Gehör war heute sicher.';
+
+    icon = <TrendingDown size={20} color="#166534" style={{ marginTop: 8 }} />;
+  } else if (avgDb < 80) {
+    cardColor = '#ffedd5'; // Orange
+    fontColor = '#9a3412';
+    warningMessage = 'Achtung: Dein Gehör wurde heute moderat belastet.';
+    icon = <TrendingUp size={20} color="#9a3412" style={{ marginTop: 8 }} />;
+  } else {
+    cardColor = '#fee2e2'; // Rot
+    fontColor = '#991b1b';
+    warningMessage = 'Warnung: Hohe Lärmbelastung heute. Gönn deinen Ohren Ruhe!';
+    icon = <AlertTriangle size={20} color="#991b1b" style={{ marginTop: 8 }} />;
+  }
 
   return (
     <View style={historyScreen.view}>
@@ -45,9 +73,9 @@ export default function HistoryScreen() {
           </TouchableOpacity>
 
           <DateSelector selectedDate={selectedDate} onDateChange={setSelectedDate}>
-             <Text style={historyScreen.dateText}>
-               {displayDate}
-             </Text>
+            <Text style={historyScreen.dateText}>
+              {displayDate}
+            </Text>
           </DateSelector>
 
           {/* Pfeil nach Rechts: +1 Tag */}
@@ -64,34 +92,58 @@ export default function HistoryScreen() {
             title="Ø Pegel"
             value={averageValue}
             subtitle=" dB"
+            onPress={() =>
+              setSelectedCard({
+                title: "Ø Pegel",
+                description: "Deine durchschnittliche Lautstärke über den gesamten Tag hinweg.",
+              })
+            }
           />
 
           <StatCard
             title="Peak"
             value={highestValue}
-            color= {highestValue >= warningThreshold ? COLORS.warning : COLORS.text}
+            color={highestValue >= warningThreshold ? COLORS.warning : COLORS.text}
+            onPress={() =>
+              setSelectedCard({
+                title: "Peak",
+                description: "Der höchste gemessene Lautstärkepegel des Tages.",
+              })
+            }
           />
 
           <StatCard
             title="Schädl. Bereich"
-            value="? min"
+            value={dangerous}
+            subtitle={"min"}
+            onPress={() =>
+              setSelectedCard({
+                title: "Schädlicher Bereich",
+                description: "Zeigt an, wie lange dein Gehör schädlichem Lärm ausgesetzt war.",
+              })
+            }
           />
         </View>
 
-
-        <TrendBanner data={data}/>
-
+        <TrendBanner data={data} />
 
         <HighlightCard>
-          {/* Hier kommt die Warnbox */}
           <HighlightCardContent>
-            {/* Hier kommt dann später echtes Warnbox hin */}
-            <View style={historyScreen.warningContainer}>
-              <Text style={historyScreen.warningText}>Warnbox Platzhalter</Text>
+            <View style={[historyScreen.warningContainer, { backgroundColor: cardColor }]}>
+              <Text style={[historyScreen.warningText, { color: fontColor }]}>
+                {warningMessage}
+              </Text>
+              {icon}
             </View>
           </HighlightCardContent>
         </HighlightCard>
 
+        <StatCardModal
+          visible={selectedCard !== null}
+          title={selectedCard?.title}
+          description={selectedCard?.description}
+          onClose={() => setSelectedCard(null)}
+        />
       </ScrollView>
     </View>
   );
@@ -174,17 +226,17 @@ const historyScreen = StyleSheet.create({
 
   warningContainer: {
     height: 160,
-    backgroundColor: '#fff7ed',
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: 20,
+  },
+  warningText: {
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 
   slateText: {
     color: '#94a3b8',
   },
-
-  warningText: {
-    color: '#fed7aa',
-  }
 })
