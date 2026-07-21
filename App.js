@@ -13,11 +13,12 @@ import FullscreenRecommendationsScreen from './src/screens/recommendations/Fulls
 import HistoryScreen from './src/screens/HistoryScreen';
 import WeeklyReview from './src/screens/WeeklyReview';
 
-import TipsConsequencesScreen from './src/screens/tips/TipsConsequencesScreen';
-import TipsRecommendationsScreen from './src/screens/tips/TipsRecommendationsScreen';
-import TipsRisksScreen from './src/screens/tips/TipsRisksScreen';
+import InfoConsequencesScreen from './src/screens/info/InfoConsequencesScreen';
+import InfoKnowledgeScreen from './src/screens/info/InfoKnowledgeScreen';
+import InfoRecommendationsScreen from './src/screens/info/InfoRecommendationsScreen';
+import InfoRisksScreen from './src/screens/info/InfoRisksScreen';
 
-import TipsTabBar from './src/components/tips/TipsTabBar';
+import InfoTabBar from './src/components/info/InfoTabBar';
 import { hasSeenCalibrationPrompt, markCalibrationPromptSeen } from './src/audio/storage';
 
 import { COLORS } from './src/constants/colors';
@@ -29,7 +30,7 @@ import { audioMeteringEmitter } from './src/audio/useAudioMeteringService';
 const tabs = [
   { id: "home", label: "Home" },
   { id: "history", label: "Verlauf" },
-  { id: "tips", label: "Tipps" },
+  { id: "info", label: "Info" },
 ];
 
 export default function App() {
@@ -146,7 +147,7 @@ export default function App() {
 
   // 2. SUB-STATES FÜR DIE EINZELNEN SCREENS
   const [historyTab, setHistoryTab] = useState("Tagesrückblick");
-  const [tipsScreen, setTipsScreen] = useState('recommendations');
+  const [infoScreen, setInfoScreen] = useState('recommendations');
   const [alertFlowScreen, setAlertFlowScreen] = useState('recommendations');
 
   // Funktion, um einen Lärm-Wert an den HomeScreen zu streamen
@@ -169,16 +170,9 @@ export default function App() {
               setAlertFlowScreen('recommendations');
               setActiveTab('fullscreen');
             }} 
+            onNavigateToNotificationTest={() => setActiveTab('notification')}
           />
 
-          <View style={styles.homeTestButtons}>
-            <TouchableOpacity style={styles.demoButton} onPress={() => triggerFakeLarm(102)}>
-              <Text style={styles.demoButtonText}>Warnscreen testen</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.demoButton} onPress={() => setActiveTab('notification')}>
-              <Text style={styles.demoButtonText}>Notification testen</Text>
-            </TouchableOpacity>
-          </View>
           <StatusBar style="auto" />
         </View>
       );
@@ -199,7 +193,10 @@ export default function App() {
 
     if (activeTab === "history") {
       return (
-        <View style={styles.flex1}>
+        <SafeAreaView 
+          style={styles.flex1}
+          edges={['top']}
+        >
           <View style={styles.historyToggleContainer}>
             {(["Tagesrückblick", "Wochenrückblick"]).map((label) => (
               <TouchableOpacity
@@ -222,33 +219,31 @@ export default function App() {
           <View style={styles.historyContentContainer}>
             {historyTab === "Tagesrückblick" ? <HistoryScreen /> : <WeeklyReview />}
           </View>
-        </View>
+        </SafeAreaView >
       );
     }
 
-    if (activeTab === "tips") {
+    if (activeTab === "info") {
       return (
-        <View style={styles.appShell}>
-          <TipsTabBar activeTab={tipsScreen === 'consequences' ? 'recommendations' : tipsScreen} onChangeTab={setTipsScreen} />
+        <SafeAreaView
+          style={styles.appShell}
+          edges={['top']}
+        >
+          <InfoTabBar activeTab={infoScreen === 'consequences' ? 'recommendations' : infoScreen} onChangeTab={setInfoScreen} />
 
-          {tipsScreen === 'risks' && <TipsRisksScreen />}
+          {infoScreen === 'risks' && <InfoRisksScreen />}
           
-          {tipsScreen === 'recommendations' && (
-            <TipsRecommendationsScreen onShowConsequences={() => setTipsScreen('consequences')} />
+          {infoScreen === 'recommendations' && (
+            <InfoRecommendationsScreen onShowConsequences={() => setInfoScreen('consequences')} />
           )}
           
-          {tipsScreen === 'consequences' && (
-            <TipsConsequencesScreen onBackToRecommendations={() => setTipsScreen('recommendations')} />
+          {infoScreen === 'consequences' && (
+            <InfoConsequencesScreen onBackToRecommendations={() => setInfoScreen('recommendations')} />
           )}
           
-          {tipsScreen === 'knowledge' && (
-            <View style={styles.placeholderScreen}>
-              <Text style={styles.placeholderTitle}>Wissen</Text>
-              <Text style={styles.placeholderText}>Dieser Screen wird von einem anderen Gruppenmitglied umgesetzt.</Text>
-            </View>
-          )}
+          {infoScreen === 'knowledge' && <InfoKnowledgeScreen />}
           <StatusBar style="auto" />
-        </View>
+        </SafeAreaView>
       );
     }
 
@@ -280,7 +275,7 @@ export default function App() {
           <Text style={styles.title}>Gehörschutz aktiv</Text>
           <Text style={styles.subtitle}>Der Bildschirm bleibt an, um dich durchgehend zu warnen.</Text>
           <View style={styles.buttonContainer}>
-            <Button title="Simuliere Lärm (100 dB)" onPress={() => NotificationService.triggerVolumeAlert(85)} color="#d9534f" />
+            <Button title="Simuliere Lärm-Warnung" onPress={() => NotificationService.triggerVolumeAlert(85)} color="#d9534f" />
           </View>
           <View style={styles.buttonContainer}>
             <Button title="Stoppe Lärm-Warnung" onPress={() => NotificationService.cancelAlert()} color="#5cb85c" />
@@ -295,13 +290,13 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
+      <View style={styles.safeArea}>
         <View style={styles.flex1}>
           {renderMainContent()}
         </View>
 
         {/* Die untere Navigationsleiste wird NUR angezeigt, wenn wir in den normalen Tabs sind */}
-        {['home', 'history', 'tips'].includes(activeTab) && (
+        {['home', 'history', 'info'].includes(activeTab) && (
           <View style={styles.bottomNavContainer}>
             {tabs.map((tab) => {
               const active = activeTab === tab.id;
@@ -313,7 +308,7 @@ export default function App() {
                 >
                   {tab.id === "home" && <Home size={22} color={active ? "#007a7a" : "#a0b8b8"} />}
                   {tab.id === "history" && <History size={22} color={active ? "#007a7a" : "#a0b8b8"} />}
-                  {tab.id === "tips" && <Lightbulb size={22} color={active ? "#007a7a" : "#a0b8b8"} />}
+                  {tab.id === "info" && <Lightbulb size={22} color={active ? "#007a7a" : "#a0b8b8"} />}
                   <Text style={[styles.tabTextBase, active ? styles.tabTextActive : styles.tabTextInactive]}>
                     {tab.label}
                   </Text>
@@ -323,7 +318,7 @@ export default function App() {
             })}
           </View>
         )}
-      </SafeAreaView>
+      </View>
     </SafeAreaProvider>
   );
 }
@@ -455,22 +450,5 @@ const styles = StyleSheet.create({
   buttonContainer: {
     marginBottom: 15,
     width: '80%',
-  },
-  placeholderScreen: {
-    flex: 1,
-    paddingHorizontal: 24,
-    paddingTop: 24,
-    backgroundColor: COLORS.background || '#f8fafc',
-  },
-  placeholderTitle: {
-    color: COLORS.text || '#1e293b',
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  placeholderText: {
-    color: '#52616b',
-    fontSize: 14,
-    lineHeight: 21,
   },
 });

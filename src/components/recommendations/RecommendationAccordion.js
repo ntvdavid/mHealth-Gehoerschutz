@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-
+import InfoCardIcon from '../info/InfoCardIcon';
 import { COLORS } from '../../constants/colors';
-import { TYPOGRAPHY } from '../../constants/typography';
 
 export default function RecommendationAccordion({
   title,
   children,
+  icon,
   defaultOpen = false,
 }) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
@@ -22,7 +22,11 @@ export default function RecommendationAccordion({
         onPress={toggleAccordion}
         activeOpacity={0.7}
       >
-        <Text style={styles.title}>{title}</Text>
+        <View style={styles.titleRow}>
+          {icon && <InfoCardIcon source={icon} size={48} />}
+          <Text style={styles.title}>{title}</Text>
+        </View>
+
         <Text style={styles.icon}>{isOpen ? '-' : '+'}</Text>
       </TouchableOpacity>
 
@@ -37,26 +41,30 @@ export default function RecommendationAccordion({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: COLORS.background,
-    borderRadius: 8,
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#d8e2e7',
-    marginBottom: 12,
+    borderColor: '#e2e8f0',
     overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
   },
   header: {
-    minHeight: 56,
+    minHeight: 60,
     paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingVertical: 12,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
   title: {
-    ...TYPOGRAPHY.h3,
-    color: COLORS.text,
+    color: COLORS.text || '#1e293b',
     flex: 1,
-    paddingRight: 12,
+    fontSize: 15,
+    fontWeight: 'bold',
   },
   icon: {
     color: COLORS.primary,
@@ -67,13 +75,21 @@ const styles = StyleSheet.create({
   },
   content: {
     borderTopWidth: 1,
-    borderTopColor: '#d8e2e7',
+    borderTopColor: '#e2e8f0',
     paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingBottom: 16,
+    paddingTop: 12,
   },
   contentText: {
-    ...TYPOGRAPHY.body,
-    color: COLORS.text,
+    color: '#64748b',
+    fontSize: 14,
     lineHeight: 21,
+  },
+  titleRow: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingRight: 12,
   },
 });

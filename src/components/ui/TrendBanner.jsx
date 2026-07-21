@@ -4,14 +4,18 @@ import { LineChart } from "react-native-gifted-charts";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "./Card"
 
 export default function TrendBanner({ data }) {
+    {/*
+    * Sample data for demonstration purposes.
+    * In a real application, this would be replaced with actual data.
+    */}
     const sampleData = [
-        { value: 65, label: 'Mo' },
-        { value: 72, label: 'Di' },
-        { value: 85, label: 'Mi' },
-        { value: 60, label: 'Do' },
-        { value: 78, label: 'Fr' },
-        { value: 90, label: 'Sa' },
-        { value: 55, label: 'So' },
+        { value: 65, label: '08h' },
+        { value: 72, label: '10h' },
+        { value: 85, label: '12h' },
+        { value: 60, label: '14h' },
+        { value: 78, label: '16h' },
+        { value: 60, label: '18h' },
+        { value: 55, label: '20h' },
     ];
 
     return (
@@ -20,7 +24,7 @@ export default function TrendBanner({ data }) {
                 <CardTitle>Lautstärkeverlauf</CardTitle>
             </CardHeader>
             <CardContent>
-                <View style={styles.cardContent}>
+                <View style={styles.cardContent, { borderColor: 'transparent' }}>
                     <LineChart
                         data={data ?? sampleData}
                         color="#007a7a"
@@ -29,18 +33,19 @@ export default function TrendBanner({ data }) {
                         yAxisSuffix=" dB"
                         width={260}
                         height={120}
-                        spacing={35}
-                        initialSpacing={10}
+                        spacing={40}
+                        initialSpacing={12}
                         showReferenceLine1={true}
                         referenceLine1Position={85}
-                        hideRules
-                        cruved
+                        curved
                         isAnimated
                         animationDuration={1200}
-                        stepValue={20}
-                        maxValue={100}
+                        yAxisOffset={20}
+                        stepValue={40}
+                        maxValue={120}
                         noOfSections={5}
-
+                        backgroundColor="transparent"
+                        hideRules={true}
 
                         pointerConfig={{
                             pointerStripHeight: 110,
@@ -50,8 +55,8 @@ export default function TrendBanner({ data }) {
                             radius: 6,
                             pointerLabelWidth: 70,
                             pointerLabelHeight: 36,
-                            shiftPointerLabelX: -100,
-                            shiftPointerLabelY: -100,
+                            shiftPointerLabelX: -35,
+                            shiftPointerLabelY: -45,
                             autoAdjustPointerLabelPosition: true,
 
                             pointerLabelComponent: (items) => {

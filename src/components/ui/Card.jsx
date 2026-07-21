@@ -61,7 +61,7 @@ export {
 
 const card = StyleSheet.create({
   card: {
-    backgroundColor: '#ffffff',
+    backgroundColor: 'transparent',
     flexDirection: 'column',
     borderRadius: 16,
     borderWidth: 1,

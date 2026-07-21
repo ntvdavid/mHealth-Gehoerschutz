@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import {StyleSheet, Text, View, Modal, TouchableOpacity, SafeAreaView} from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
 
@@ -24,6 +24,14 @@ import { TYPOGRAPHY } from '../../constants/typography';
     };
 
 export default function NoiseAlertModal({visible, currentDb, onClose, onGoToRecommendations}) {
+
+    const [triggeredDb, setTriggeredDb] = useState(currentDb); // saves the dB value when alert is triggered 
+
+    useEffect(() => {
+        if (visible) {
+            setTriggeredDb(currentDb); // Update the triggered dB value when the modal becomes visible
+        }
+    }, [visible]);
 
     const handleAction = () => {
         onGoToRecommendations?.();
@@ -64,10 +72,10 @@ export default function NoiseAlertModal({visible, currentDb, onClose, onGoToReco
                         Kritische Lautstärke{'\n'}erkannt
                     </Text>
 
-                    {/* Decibel map */}
+                    {/* Decibel map - static value*/}
                      <View style={styles.dbCard}>
-                        <Text style={styles.dbCardSub}>Aktuell</Text>
-                        <Text style={styles.dbCardValue}>{currentDb} dB</Text>
+                        <Text style={styles.dbCardSub}>Gemessen:</Text>
+                        <Text style={styles.dbCardValue}>{triggeredDb} dB</Text>
                     </View>
 
                     {/* Description */}
@@ -78,9 +86,9 @@ export default function NoiseAlertModal({visible, currentDb, onClose, onGoToReco
                     {/* dynamic Time-Warning, Source: https://www.bgrci.de/praxishandbuch-baustoffindustrie/a-grundlagen/a-1-allgemeines/a-18-laerm */} 
                     <View style={styles.infoBox}>
                         <Text style={styles.infoText}> 
-                           📋 Bei {currentDb} dB liegt die empfohlene Expositionszeit bei etwa{' '}
+                           📋 Bei {triggeredDb} dB liegt die empfohlene Expositionszeit bei etwa{' '}
                            <Text style={{fontWeight: 'bold'}}>
-                            {calculateExpositionTime(currentDb)}
+                            {calculateExpositionTime(triggeredDb)}
                            </Text>.
                         </Text>
                     </View>
@@ -205,5 +213,3 @@ const styles = StyleSheet.create({
         color: COLORS.warning,
     },
 });
-
-

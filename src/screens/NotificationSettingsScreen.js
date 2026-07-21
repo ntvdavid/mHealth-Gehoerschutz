@@ -13,7 +13,7 @@ export default function NotificationSettingsScreen({ onBack }) {
     const [criticalWarnings, setCriticalWarnings] = useState(true);
     const [vibration, setVibration] = useState(true);
     const [dailySummary, setDailySummary] = useState(false);
-    const [hearingTips, setHearingTips] = useState(false);
+    const [hearingInfo, setHearingInfo] = useState(false);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -87,10 +87,10 @@ export default function NotificationSettingsScreen({ onBack }) {
 
                     <SettingItem
                         icon="shield"
-                        title="Tipps zum Gehörschutz"
+                        title="Infos zum Gehörschutz"
                         description="Gelegentliche Hinweise zu Pausen und Gehörschutz."
-                        value={hearingTips}
-                        onValueChange={setHearingTips}
+                        value={hearingInfo}
+                        onValueChange={setHearingInfo}
                     />
                 </Card>
 

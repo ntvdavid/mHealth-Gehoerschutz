@@ -36,7 +36,6 @@ export const NotificationService = {
                 importance: Notifications.AndroidImportance.MAX,
                 vibrate: false,
                 lightColor: '#FF231F7C',
-                // bypassDnd: true, // Benachrichtigungen auch bei aktiviertem "Nicht stören"-Modus anzeigen
             });
         }
         console.log("Notification successfully initialized");
@@ -46,11 +45,6 @@ export const NotificationService = {
     // Trigger Noise warning
     async triggerVolumeAlert(currentDb) {
         this.cancelAlert(); 
-
-        if(vibrationInterval) {
-            clearInterval(vibrationInterval);
-            vibrationInterval = null;
-        }
 
         await Notifications.scheduleNotificationAsync({
             content: {
@@ -67,24 +61,28 @@ export const NotificationService = {
         });
 
         let durationCounter = 0;
-        const intervalTime = Platform.OS === 'ios' ? 500 : 400; 
-        vibrationInterval = setInterval(() => {
-            if (Platform.OS === 'ios') {
-                Vibration.vibrate(); 
-            } else {
-                Vibration.vibrate(500); // Vibrationsmuster für Android
-            }
 
-            durationCounter += intervalTime;
-            if (durationCounter >= 10000) { // Stop after 10 seconds
-                if (vibrationInterval) {
-                    clearInterval(vibrationInterval);
-                    vibrationInterval = null;
+        if(Platform.OS === 'android') {
+            const pattern = [0,400,100];
+            Vibration.vibrate(pattern, true); // repeat vibration pattern for Android
+            vibrationInterval = setInterval(() => {
+                durationCounter += 500; // Update counter every 500ms
+                if (durationCounter >= 10000) { // Stop after 10 seconds
+                    this.cancelAlert();
                 }
-                Vibration.cancel();
-                console.log("Vibration stopped after 10 seconds");
-            }
-        }, intervalTime);
+            }, 500);
+        } else {
+            const intervalTime = 300; // Vibrate every second
+            Vibration.vibrate(); // Initial vibration for iOS
+
+            vibrationInterval = setInterval(() => {
+                Vibration.vibrate(); // Vibrate every second for iOS
+                durationCounter += intervalTime;
+                if (durationCounter >= 10000) { // Stop after 10 seconds
+                    this.cancelAlert();
+                }
+            }, intervalTime);
+        }
     },
 
     cancelAlert() {
