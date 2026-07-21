@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-
+import InfoCardIcon from '../info/InfoCardIcon';
 import { COLORS } from '../../constants/colors';
 
 export default function RecommendationAccordion({
   title,
   children,
+  icon,
   defaultOpen = false,
 }) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
@@ -21,7 +22,11 @@ export default function RecommendationAccordion({
         onPress={toggleAccordion}
         activeOpacity={0.7}
       >
-        <Text style={styles.title}>{title}</Text>
+        <View style={styles.titleRow}>
+          {icon && <InfoCardIcon source={icon} size={48} />}
+          <Text style={styles.title}>{title}</Text>
+        </View>
+
         <Text style={styles.icon}>{isOpen ? '-' : '+'}</Text>
       </TouchableOpacity>
 
@@ -60,7 +65,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 15,
     fontWeight: 'bold',
-    paddingRight: 12,
   },
   icon: {
     color: COLORS.primary,
@@ -80,5 +84,12 @@ const styles = StyleSheet.create({
     color: '#64748b',
     fontSize: 14,
     lineHeight: 21,
+  },
+  titleRow: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingRight: 12,
   },
 });

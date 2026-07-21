@@ -1,26 +1,36 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
+import InfoSectionHeader from '../info/InfoSectionHeader';
+import InfoCardIcon from '../info/InfoCardIcon';
 import { COLORS } from '../../constants/colors';
-import TipsSectionHeader from '../tips/TipsSectionHeader';
+
+const shortTermIcon = require('../../../assets/info/consequences/Kurzfristige Folgen.png');
+const longTermIcon = require('../../../assets/info/consequences/Langfristige Folgen.png');
+const developmentIcon = require('../../../assets/info/consequences/Entwicklung der Belastung.png');
+const dailyLifeIcon = require('../../../assets/info/consequences/Auswirkungen im Alltag.png');
+const warningSignsIcon = require('../../../assets/info/consequences/Warnzeichen.png');
+const medicalAdviceIcon = require('../../../assets/info/consequences/Medizinischer Rat.png');
 
 export default function ConsequencesContent() {
   return (
     <>
-      <TipsSectionHeader title="Warum Lärm gefährlich sein kann">
+      <InfoSectionHeader title="Warum Lärm gefährlich sein kann">
         Lärm kann die empfindlichen Sinneszellen im Innenohr überlasten.
         Wiederholte Belastung kann zu dauerhaftem Hörverlust oder Tinnitus
         führen – oft schleichend und zunächst unbemerkt.
-      </TipsSectionHeader>
+      </InfoSectionHeader>
 
       <InfoBox
         title="Kurzfristige Folgen"
         text="Nach starker Lärmbelastung können Ohrdruck, Piepen oder ein dumpfes Hörgefühl auftreten. Diese Anzeichen zeigen, dass dein Gehör gerade stark belastet wurde."
+        icon={shortTermIcon}
       />
 
       <InfoBox
         title="Langfristige Folgen"
         text="Wiederholter oder sehr lauter Lärm kann das Risiko für dauerhafte Hörschäden erhöhen. Betroffene merken Veränderungen oft erst, wenn Gespräche oder hohe Töne schwerer wahrnehmbar werden."
+        icon={longTermIcon}
       />
 
       <DevelopmentChain />
@@ -28,6 +38,7 @@ export default function ConsequencesContent() {
       <InfoBox
         title="Auswirkungen im Alltag"
         text="Hörschäden fallen besonders bei Gesprächen, Hintergrundgeräuschen oder hohen Tönen auf. Das Zuhören kann dadurch anstrengender werden."
+        icon={dailyLifeIcon}
       />
 
       <WarningSignsCard />
@@ -35,17 +46,30 @@ export default function ConsequencesContent() {
       <InfoBox
         title="Wann medizinischen Rat einholen?"
         text="Bei anhaltendem Tinnitus oder länger bestehenden Hörproblemen sollte das Gehör fachlich untersucht werden. Ein plötzlich auftretender Hörverlust sollte umgehend ärztlich abgeklärt werden."
+        icon={medicalAdviceIcon}
         variant="notice"
       />
     </>
   );
 }
 
-function InfoBox({ title, text, variant = 'default' }) {
+function InfoBox({ title, text, icon, variant = 'default' }) {
   return (
     <View style={[styles.infoBox, variant === 'notice' && styles.noticeBox]}>
-      <Text style={styles.infoTitle}>{title}</Text>
-      <Text style={styles.infoText}>{text}</Text>
+      <ConsequencesCardHeader icon={icon} title={title} text={text} />
+    </View>
+  );
+}
+
+function ConsequencesCardHeader({ icon, title, text }) {
+  return (
+    <View style={styles.cardHeader}>
+      {icon && <InfoCardIcon source={icon} size={72} />}
+
+      <View style={styles.cardHeaderText}>
+        <Text style={styles.infoTitle}>{title}</Text>
+        <Text style={styles.infoText}>{text}</Text>
+      </View>
     </View>
   );
 }
@@ -53,7 +77,11 @@ function InfoBox({ title, text, variant = 'default' }) {
 function DevelopmentChain() {
   return (
     <View style={styles.infoBox}>
-      <Text style={styles.infoTitle}>Wie sich Belastung entwickeln kann</Text>
+      <ConsequencesCardHeader
+        icon={developmentIcon}
+        title="Wie sich Belastung entwickeln kann"
+        text="Laute Situationen können kurzfristig belasten und sich bei Wiederholung zu einem dauerhaften Problem entwickeln."
+      />
 
       <View style={styles.chainList}>
         <ChainStep
@@ -97,8 +125,11 @@ function ChainStep({ title, text, isLast = false }) {
 function WarningSignsCard() {
   return (
     <View style={styles.infoBox}>
-      <Text style={styles.infoTitle}>Achte auf diese Warnzeichen</Text>
-
+      <ConsequencesCardHeader
+        icon={warningSignsIcon}
+        title="Achte auf diese Warnzeichen"
+        text="Diese Anzeichen können darauf hindeuten, dass dein Gehör überlastet wurde."
+      />
       <View style={styles.warningList}>
         <WarningSign text="Pfeifen oder Rauschen im Ohr" />
         <WarningSign text="Dumpfes oder verstopftes Hörgefühl" />
@@ -148,7 +179,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   chainList: {
-    marginTop: 6,
+    marginTop: 14,
   },
   chainStep: {
     flexDirection: 'row',
@@ -192,7 +223,7 @@ const styles = StyleSheet.create({
   },
   warningList: {
     gap: 8,
-    marginTop: 6,
+    marginTop: 14,
   },
   warningItem: {
     flexDirection: 'row',
@@ -209,5 +240,13 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     lineHeight: 21,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+  },
+  cardHeaderText: {
+    flex: 1,
   },
 });

@@ -2,19 +2,19 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { ChevronRight, TriangleAlert, ShieldIcon, Baby, Tv, MusicIcon, Plane, Mic, HeadphonesIcon } from 'lucide-react-native';
 import ScoreChart from '../../components/ui/ScoreChart';
-import TipsInfoLayout from '../../components/layout/TipsInfoLayout';
-import TipsSectionHeader from '../../components/tips/TipsSectionHeader';
+import InfoLayout from '../../components/layout/InfoLayout';
+import InfoSectionHeader from '../../components/info/InfoSectionHeader';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '../../components/ui/Card';
 import StatCard from '../../components/home/StatCard';
 import { HighlightCard, HighlightCardContent } from '../../components/ui/HighlightCard';
 
-export default function TipsKnowledgeScreen() {
+export default function InfoKnowledgeScreen() {
   return (
-    <TipsInfoLayout>
-      <TipsSectionHeader
+    <InfoLayout>
+      <SectionHeader
         title="Wusstest du schon?"
         children="Wissen, das dein Gehör schützt. Hier findest du alles, was du über Lärm, Hörverlust und Prävention wissen musst.">
-      </TipsSectionHeader>
+      </SectionHeader>
 
       <Card style={styles.card}>
         <CardHeader style={styles.cardHeader}>
@@ -104,7 +104,7 @@ export default function TipsKnowledgeScreen() {
         </HighlightCardContent>
       </HighlightCard>
 
-    </TipsInfoLayout>
+    </InfoLayout>
   );
 }
 

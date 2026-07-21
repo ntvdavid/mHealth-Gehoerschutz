@@ -13,12 +13,12 @@ import FullscreenRecommendationsScreen from './src/screens/recommendations/Fulls
 import HistoryScreen from './src/screens/HistoryScreen';
 import WeeklyReview from './src/screens/WeeklyReview';
 
-import TipsConsequencesScreen from './src/screens/tips/TipsConsequencesScreen';
-import TipsKnowledgeScreen from './src/screens/tips/TipsKnowledgeScreen';
-import TipsRecommendationsScreen from './src/screens/tips/TipsRecommendationsScreen';
-import TipsRisksScreen from './src/screens/tips/TipsRisksScreen';
+import InfoConsequencesScreen from './src/screens/info/InfoConsequencesScreen';
+import InfoKnowledgeScreen from './src/screens/info/InfoKnowledgeScreen';
+import InfoRecommendationsScreen from './src/screens/info/InfoRecommendationsScreen';
+import InfoRisksScreen from './src/screens/info/InfoRisksScreen';
 
-import TipsTabBar from './src/components/tips/TipsTabBar';
+import InfoTabBar from './src/components/info/InfoTabBar';
 import { hasSeenCalibrationPrompt, markCalibrationPromptSeen } from './src/audio/storage';
 
 import { COLORS } from './src/constants/colors';
@@ -30,7 +30,7 @@ import { audioMeteringEmitter } from './src/audio/useAudioMeteringService';
 const tabs = [
   { id: "home", label: "Home" },
   { id: "history", label: "Verlauf" },
-  { id: "tips", label: "Tipps" },
+  { id: "info", label: "Info" },
 ];
 
 export default function App() {
@@ -147,7 +147,7 @@ export default function App() {
 
   // 2. SUB-STATES FÜR DIE EINZELNEN SCREENS
   const [historyTab, setHistoryTab] = useState("Tagesrückblick");
-  const [tipsScreen, setTipsScreen] = useState('recommendations');
+  const [infoScreen, setInfoScreen] = useState('recommendations');
   const [alertFlowScreen, setAlertFlowScreen] = useState('recommendations');
 
   // Funktion, um einen Lärm-Wert an den HomeScreen zu streamen
@@ -223,25 +223,25 @@ export default function App() {
       );
     }
 
-    if (activeTab === "tips") {
+    if (activeTab === "info") {
       return (
         <SafeAreaView
           style={styles.appShell}
           edges={['top']}
         >
-          <TipsTabBar activeTab={tipsScreen === 'consequences' ? 'recommendations' : tipsScreen} onChangeTab={setTipsScreen} />
+          <InfoTabBar activeTab={infoScreen === 'consequences' ? 'recommendations' : infoScreen} onChangeTab={setInfoScreen} />
 
-          {tipsScreen === 'risks' && <TipsRisksScreen />}
+          {infoScreen === 'risks' && <InfoRisksScreen />}
           
-          {tipsScreen === 'recommendations' && (
-            <TipsRecommendationsScreen onShowConsequences={() => setTipsScreen('consequences')} />
+          {infoScreen === 'recommendations' && (
+            <InfoRecommendationsScreen onShowConsequences={() => setInfoScreen('consequences')} />
           )}
           
-          {tipsScreen === 'consequences' && (
-            <TipsConsequencesScreen onBackToRecommendations={() => setTipsScreen('recommendations')} />
+          {infoScreen === 'consequences' && (
+            <InfoConsequencesScreen onBackToRecommendations={() => setInfoScreen('recommendations')} />
           )}
           
-          {tipsScreen === 'knowledge' && <TipsKnowledgeScreen />}
+          {infoScreen === 'knowledge' && <InfoKnowledgeScreen />}
           <StatusBar style="auto" />
         </SafeAreaView>
       );
@@ -296,7 +296,7 @@ export default function App() {
         </View>
 
         {/* Die untere Navigationsleiste wird NUR angezeigt, wenn wir in den normalen Tabs sind */}
-        {['home', 'history', 'tips'].includes(activeTab) && (
+        {['home', 'history', 'info'].includes(activeTab) && (
           <View style={styles.bottomNavContainer}>
             {tabs.map((tab) => {
               const active = activeTab === tab.id;
@@ -308,7 +308,7 @@ export default function App() {
                 >
                   {tab.id === "home" && <Home size={22} color={active ? "#007a7a" : "#a0b8b8"} />}
                   {tab.id === "history" && <History size={22} color={active ? "#007a7a" : "#a0b8b8"} />}
-                  {tab.id === "tips" && <Lightbulb size={22} color={active ? "#007a7a" : "#a0b8b8"} />}
+                  {tab.id === "info" && <Lightbulb size={22} color={active ? "#007a7a" : "#a0b8b8"} />}
                   <Text style={[styles.tabTextBase, active ? styles.tabTextActive : styles.tabTextInactive]}>
                     {tab.label}
                   </Text>

@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { COLORS } from '../../constants/colors';
 
-export default function TipsInfoLayout({ children, footer }) {
+export default function InfoLayout({ children, footer }) {
   return (
     <ScrollView
       style={styles.screen}

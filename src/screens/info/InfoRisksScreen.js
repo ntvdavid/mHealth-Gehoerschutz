@@ -1,43 +1,59 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { Shield } from 'lucide-react-native';
 
-import TipsInfoLayout from '../../components/layout/TipsInfoLayout';
-import TipsSectionHeader from '../../components/tips/TipsSectionHeader';
+import InfoLayout from '../../components/layout/InfoLayout';
+import InfoSectionHeader from '../../components/info/InfoSectionHeader';
+import InfoCardIcon from '../../components/info/InfoCardIcon';
 import { COLORS } from '../../constants/colors';
 
-export default function TipsRisksScreen() {
+const listeningTimeIcon = require('../../../assets/info/risks/Lautstärke x Zeit.png');
+const peakLevelsIcon = require('../../../assets/info/risks/Typischer Spitzenpegel.png');
+const reminderIcon = require('../../../assets/info/risks/Merksatz.png');
+
+export default function InfoRisksScreen() {
   return (
-    <TipsInfoLayout>
-      <TipsSectionHeader title="Verstehe die Risiken">
+    <InfoLayout>
+      <InfoSectionHeader title="Verstehe die Risiken">
         Lärm wirkt nicht nur über die Lautstärke, sondern auch über die Dauer.
         Je lauter es wird, desto kürzer ist die empfohlene Hörzeit.
-      </TipsSectionHeader>
+      </InfoSectionHeader>
 
       <ListeningTimeCard />
 
       <PeakLevelsCard />
 
       <View style={styles.ruleBox}>
-        <Shield size={20} color={COLORS.primary} />
-
-        <Text style={styles.ruleText}>
-          <Text style={styles.ruleTextBold}>Merksatz:</Text> Schon wenige
-          Dezibel mehr verkürzen die empfohlene Expositionszeit deutlich.
-        </Text>
+        <RiskCardHeader
+          icon={reminderIcon}
+          title="Merksatz"
+          text="Schon wenige Dezibel mehr verkürzen die empfohlene Expositionszeit deutlich."
+        />
       </View>
-    </TipsInfoLayout>
+    </InfoLayout>
+  );
+}
+
+function RiskCardHeader({ icon, title, text }) {
+  return (
+    <View style={styles.cardHeader}>
+      <InfoCardIcon source={icon} size={72} />
+
+      <View style={styles.cardHeaderText}>
+        <Text style={styles.cardTitle}>{title}</Text>
+        <Text style={styles.cardText}>{text}</Text>
+      </View>
+    </View>
   );
 }
 
 function ListeningTimeCard() {
   return (
     <View style={styles.card}>
-      <Text style={styles.cardTitle}>Lautstärke × Zeit</Text>
-      <Text style={styles.cardText}>
-        Diese Richtwerte zeigen, wie schnell sich sichere Hörzeit bei höheren
-        Pegeln verkürzt.
-      </Text>
+      <RiskCardHeader
+        icon={listeningTimeIcon}
+        title="Lautstärke × Zeit"
+        text="Diese Richtwerte zeigen, wie schnell sich sichere Hörzeit bei höheren Pegeln verkürzt."
+      />
 
       <View style={styles.timeList}>
         <ListeningTimeRow level="80 dB" time="bis zu 40 Stunden pro Woche" />
@@ -60,11 +76,11 @@ function ListeningTimeRow({ level, time }) {
 function PeakLevelsCard() {
   return (
     <View style={styles.card}>
-      <Text style={styles.cardTitle}>Typische Spitzenpegel</Text>
-      <Text style={styles.cardText}>
-        Manche Alltagssituationen erreichen sehr hohe Lautstärken, auch wenn sie
-        nur kurz auftreten.
-      </Text>
+      <RiskCardHeader
+        icon={peakLevelsIcon}
+        title="Typische Spitzenpegel"
+        text="Manche Alltagssituationen erreichen sehr hohe Lautstärken, auch wenn sie nur kurz auftreten."
+      />
 
       <View style={styles.peakList}>
         <PeakLevelRow title="Baustelle" value="95 dB" variant="medium" />
@@ -182,17 +198,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#b2dfdb',
     padding: 16,
+  },
+  cardHeader: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 12,
+    alignItems: 'center',
+    gap: 14,
   },
-  ruleText: {
-    color: COLORS.text || '#1e293b',
+  cardHeaderText: {
     flex: 1,
-    fontSize: 14,
-    lineHeight: 21,
-  },
-  ruleTextBold: {
-    fontWeight: 'bold',
   },
 });
