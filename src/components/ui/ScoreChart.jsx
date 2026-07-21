@@ -1,12 +1,13 @@
-import React from "react";
-import { View, Text, StyleSheet } from "react-native";
-import Svg, { Circle } from "react-native-svg"; // <-- Der sichere Expo-Import
+import React, { useEffect, useRef } from "react";
+import { View, Text, StyleSheet, Animated } from "react-native";
+import Svg, { Circle } from "react-native-svg";
 
 import Card from "../cards/Card";
-
 import { COLORS } from "../../constants/colors";
 import { SPACING } from "../../constants/spacing";
 import { TYPOGRAPHY } from "../../constants/typography";
+
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 export default function ScoreChart({ score }) {
     const size = 200;
@@ -14,8 +15,21 @@ export default function ScoreChart({ score }) {
     const radius = (size - strokeWidth) / 2;
     const circumference = radius * 2 * Math.PI;
 
-    const progress = score / 100;
-    const strokeDashoffset = circumference - (progress * circumference);
+    const animatedValue = useRef(new Animated.Value(0)).current;
+
+    useEffect(() => {
+        Animated.timing(animatedValue, {
+            toValue: score,
+            duration: 1500,
+            useNativeDriver: false,
+        }).start();
+    }, [score]);
+
+  
+    const strokeDashoffset = animatedValue.interpolate({
+        inputRange: [0, 100],
+        outputRange: [circumference, 0],
+    });
 
     return (
         <Card style={styles.container}>
@@ -30,9 +44,9 @@ export default function ScoreChart({ score }) {
                         r={radius}
                         strokeWidth={strokeWidth}
                     />
-                    {/* Der farbige Fortschritts-Ring */}
-                    <Circle
-                        stroke={score >= 65 ? "#007a7a" : "#ff6b6b"}
+                    {/* Der animierte farbige Ring */}
+                    <AnimatedCircle
+                        stroke={score > 65 ? "#007a7a" : score > 40 ? "#f59e0b" : "#ef4444"}
                         fill="none"
                         cx={size / 2}
                         cy={size / 2}
@@ -40,12 +54,13 @@ export default function ScoreChart({ score }) {
                         strokeWidth={strokeWidth}
                         strokeDasharray={circumference}
                         strokeDashoffset={strokeDashoffset}
-                        strokeLinecap="round"
-                        rotation="-90"
+                        strokeLinecap="round" 
+                        rotation="-90" 
                         originX={size / 2}
                         originY={size / 2}
                     />
                 </Svg>
+
                 <View style={styles.textContainer}>
                     <View style={styles.dbContainer}>
                         <Text style={styles.db}>{score}</Text>
@@ -81,5 +96,5 @@ const styles = StyleSheet.create({
         ...TYPOGRAPHY.h3,
         color: COLORS.text,
         marginBottom: 4,
-    }
+    },
 });
