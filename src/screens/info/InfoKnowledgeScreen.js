@@ -11,10 +11,10 @@ import { HighlightCard, HighlightCardContent } from '../../components/ui/Highlig
 export default function InfoKnowledgeScreen() {
   return (
     <InfoLayout>
-      <SectionHeader
+      <InfoSectionHeader
         title="Wusstest du schon?"
         children="Wissen, das dein Gehör schützt. Hier findest du alles, was du über Lärm, Hörverlust und Prävention wissen musst.">
-      </SectionHeader>
+      </InfoSectionHeader>
 
       <Card style={styles.card}>
         <CardHeader style={styles.cardHeader}>
@@ -77,10 +77,6 @@ export default function InfoKnowledgeScreen() {
           </TouchableOpacity>
         </CardFooter>
       </Card>
-
-      {/* kein Bock die StatCard neuzuschreiben, sodass jede Alltag Situation einen Progressbar besitzt. 
-      100000000 mio prozent würde einen User nicht jucken. 
-      */}
 
       {/* <TipsSectionHeader title="So laut ist dein Alltag">
       </TipsSectionHeader>
