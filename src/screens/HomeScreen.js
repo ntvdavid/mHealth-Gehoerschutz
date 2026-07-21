@@ -66,12 +66,12 @@ export default function HomeScreen({ audioMeter, onOpenCalibration, onNavigateTo
             
             setNoiseLevel(roundedDb);
 
-            setTodayPeak((previousPeak) => {
-                if (previousPeak === null || sample.calibratedDb > previousPeak) {
+            setTodayPeak((prevPeak) => {
+                if (prevPeak === null) {
                     return sample.calibratedDb;
                 }
 
-                return previousPeak;
+                return Math.max(prevPeak, sample.calibratedDb);
             });
 
             const WARNING_THRESHOLD_DB = 100;
