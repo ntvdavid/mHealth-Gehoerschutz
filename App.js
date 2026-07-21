@@ -46,7 +46,7 @@ export default function App() {
 
   const [widgetSuccessVisible, setWidgetSuccessVisible] = useState(false);
 
-  const [calibrationPromptResolved, setCalibrationPromptResolved] = useState(false);
+  const [widgetPromptResolved, setWidgetPromptResolved] = useState(false);
 
   const widgetPromptCheckedRef = useRef(false);
 
@@ -106,7 +106,6 @@ export default function App() {
 
     if (
       !allPermissionsResolved ||
-      !calibrationPromptResolved ||
       widgetPromptCheckedRef.current
     ) {
       return;
@@ -121,6 +120,7 @@ export default function App() {
         );
 
         if (hasSeenWidgetPrompt === "true") {
+          setWidgetPromptResolved(true);
           return;
         }
 
@@ -139,7 +139,6 @@ export default function App() {
   }, [
     audioMeter.permissionResolved,
     notificationPermissionResolved,
-    calibrationPromptResolved,
   ]);
 
   useEffect(() => {
@@ -148,7 +147,7 @@ export default function App() {
       notificationPermissionResolved;
 
     if (
-      !audioMeter.storageReady || !allPermissionsResolved || calibrationPromptCheckedRef.current
+      !audioMeter.storageReady || !allPermissionsResolved || !widgetPromptResolved || calibrationPromptCheckedRef.current
     ) {
       return;
     }
@@ -159,7 +158,6 @@ export default function App() {
       const hasSeenPrompt = await hasSeenCalibrationPrompt();
 
       if (hasSeenPrompt || audioMeter.calibration) {
-        setCalibrationPromptResolved(true);
         return;
       }
 
@@ -173,7 +171,6 @@ export default function App() {
               style: 'cancel',
               onPress: async () => {
                 await markCalibrationPromptSeen();
-                setCalibrationPromptResolved(true);
               },
             },
             {
@@ -199,6 +196,7 @@ export default function App() {
       audioMeter.permissionResolved,
       audioMeter.calibration,
       notificationPermissionResolved,
+      widgetPromptResolved,
     ]);
 
   // 1. HAUPT-NAVIGATION
@@ -238,7 +236,8 @@ export default function App() {
         error
       );
     } finally {
-      setWidgetPromptVisible(false);
+        setWidgetPromptVisible(false);
+        setWidgetPromptResolved(true);
     }
   };
 
@@ -249,6 +248,7 @@ export default function App() {
   const handleFinishWidget = () => {
     setWidgetSuccessVisible(false);
     setActiveTab("home");
+    setWidgetPromptResolved(true);
   };
 
   // Funktion, um einen Lärm-Wert an den HomeScreen zu streamen
@@ -286,7 +286,6 @@ export default function App() {
             audioMeter={audioMeter}
             onBack={() => {
               setActiveTab('home')
-              setCalibrationPromptResolved(true);
             }}
           />
 
@@ -374,7 +373,10 @@ export default function App() {
       return (
         <View style={styles.appShell}>
           <WidgetScreen
-            onSkip={() => setActiveTab("home")}
+            onSkip={() => {
+              setActiveTab("home");
+              setWidgetPromptResolved(true);
+            }}
             onAddWidget={handleAddFakeWidget}
           />
 
