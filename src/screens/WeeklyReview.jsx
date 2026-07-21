@@ -13,7 +13,7 @@ import WeekStats from '../components/home/WeekStats';
 export default function WeeklyReview() {
 
   //Später kommt dieser Score wahrscheinlich aus einer Datenbank oder über "props"
-  const score = 80; 
+  const score = 30; 
 
   let cardColor = '';
   let fontColor = '';
