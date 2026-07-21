@@ -8,6 +8,7 @@ import StatCard from "../components/home/StatCard";
 import { COLORS } from "../constants/colors";
 import TrendBanner from '../components/ui/TrendBanner';
 import { getDataForDate } from '../utils/FakeDataBase';
+import DateSelector from '../components/ui/DateSelector';
 
 export default function HistoryScreen() {
 
@@ -43,9 +44,11 @@ export default function HistoryScreen() {
             <ChevronLeft size={16} color="#334155" />
           </TouchableOpacity>
 
-          <Text style={historyScreen.dateText}>
-            {displayDate}
-          </Text>
+          <DateSelector selectedDate={selectedDate} onDateChange={setSelectedDate}>
+             <Text style={historyScreen.dateText}>
+               {displayDate}
+             </Text>
+          </DateSelector>
 
           {/* Pfeil nach Rechts: +1 Tag */}
           <TouchableOpacity
