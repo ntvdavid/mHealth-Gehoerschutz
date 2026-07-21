@@ -1,9 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, StyleSheet, Text, TouchableOpacity, View, Alert, } from 'react-native';
+import { Feather } from "@expo/vector-icons";
+import { Button, StyleSheet, Text, TouchableOpacity, View, Alert, Modal, } from 'react-native';
 import { SafeAreaProvider, SafeAreaView, } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useKeepAwake } from 'expo-keep-awake';
 import { Home, History, Lightbulb } from 'lucide-react-native';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import HomeScreen from './src/screens/HomeScreen';
 import CalibrationScreen from './src/screens/CalibrationScreen';
@@ -17,11 +19,15 @@ import InfoConsequencesScreen from './src/screens/info/InfoConsequencesScreen';
 import InfoKnowledgeScreen from './src/screens/info/InfoKnowledgeScreen';
 import InfoRecommendationsScreen from './src/screens/info/InfoRecommendationsScreen';
 import InfoRisksScreen from './src/screens/info/InfoRisksScreen';
+import WidgetScreen from "./src/screens/WidgetScreen";
 
 import InfoTabBar from './src/components/info/InfoTabBar';
+import WidgetPermissionModal from "./src/components/widget/WidgetPermissionModal";
 import { hasSeenCalibrationPrompt, markCalibrationPromptSeen } from './src/audio/storage';
 
 import { COLORS } from './src/constants/colors';
+import { SPACING } from "./src/constants/spacing";
+import { TYPOGRAPHY } from "./src/constants/typography";
 import { NotificationService } from './src/services/notification';
 import { useAudioMeteringService } from './src/audio/useAudioMeteringService';
 
@@ -35,6 +41,14 @@ const tabs = [
 
 export default function App() {
   useKeepAwake();
+
+  const [widgetPromptVisible, setWidgetPromptVisible] = useState(false);
+
+  const [widgetSuccessVisible, setWidgetSuccessVisible] = useState(false);
+
+  const [calibrationPromptResolved, setCalibrationPromptResolved] = useState(false);
+
+  const widgetPromptCheckedRef = useRef(false);
 
   const audioMeter = useAudioMeteringService({
     referenceSpl: 70,
@@ -86,6 +100,49 @@ export default function App() {
   ]);
 
   useEffect(() => {
+    const allPermissionsResolved =
+      audioMeter.permissionResolved &&
+      notificationPermissionResolved;
+
+    if (
+      !allPermissionsResolved ||
+      !calibrationPromptResolved ||
+      widgetPromptCheckedRef.current
+    ) {
+      return;
+    }
+
+    widgetPromptCheckedRef.current = true;
+
+    const checkWidgetPrompt = async () => {
+      try {
+        const hasSeenWidgetPrompt = await AsyncStorage.getItem(
+          "@gehoerschutz/widget-prompt-seen"
+        );
+
+        if (hasSeenWidgetPrompt === "true") {
+          return;
+        }
+
+        setTimeout(() => {
+          setWidgetPromptVisible(true);
+        }, 500);
+      } catch (error) {
+        console.warn(
+          "Widget-Hinweis konnte nicht geladen werden:",
+          error
+        );
+      }
+    };
+
+    checkWidgetPrompt();
+  }, [
+    audioMeter.permissionResolved,
+    notificationPermissionResolved,
+    calibrationPromptResolved,
+  ]);
+
+  useEffect(() => {
     const allPermissionsResolved = 
       audioMeter.permissionResolved &&
       notificationPermissionResolved;
@@ -102,6 +159,7 @@ export default function App() {
       const hasSeenPrompt = await hasSeenCalibrationPrompt();
 
       if (hasSeenPrompt || audioMeter.calibration) {
+        setCalibrationPromptResolved(true);
         return;
       }
 
@@ -115,6 +173,7 @@ export default function App() {
               style: 'cancel',
               onPress: async () => {
                 await markCalibrationPromptSeen();
+                setCalibrationPromptResolved(true);
               },
             },
             {
@@ -150,6 +209,48 @@ export default function App() {
   const [infoScreen, setInfoScreen] = useState('recommendations');
   const [alertFlowScreen, setAlertFlowScreen] = useState('recommendations');
 
+  const handleWidgetAllow = async () => {
+    try {
+      await AsyncStorage.setItem(
+        "@gehoerschutz/widget-prompt-seen",
+        "true"
+      );
+
+      setWidgetPromptVisible(false);
+      setActiveTab("widget");
+    } catch (error) {
+      console.warn(
+        "Widget-Auswahl konnte nicht gespeichert werden:",
+        error
+      );
+    }
+  };
+
+  const handleWidgetSkip = async () => {
+    try {
+      await AsyncStorage.setItem(
+        "@gehoerschutz/widget-prompt-seen",
+        "true"
+      );
+    } catch (error) {
+      console.warn(
+        "Widget-Auswahl konnte nicht gespeichert werden:",
+        error
+      );
+    } finally {
+      setWidgetPromptVisible(false);
+    }
+  };
+
+  const handleAddFakeWidget = () => {
+    setWidgetSuccessVisible(true);
+  };
+
+  const handleFinishWidget = () => {
+    setWidgetSuccessVisible(false);
+    setActiveTab("home");
+  };
+
   // Funktion, um einen Lärm-Wert an den HomeScreen zu streamen
   const triggerFakeLarm = (dbValue) => {
     audioMeteringEmitter.emit({
@@ -183,7 +284,10 @@ export default function App() {
         <View style={styles.appShell}>
           <CalibrationScreen
             audioMeter={audioMeter}
-            onBack={() => setActiveTab('home')}
+            onBack={() => {
+              setActiveTab('home')
+              setCalibrationPromptResolved(true);
+            }}
           />
 
           <StatusBar style='auto'/>
@@ -266,6 +370,19 @@ export default function App() {
       );
     }
 
+    if (activeTab === "widget") {
+      return (
+        <View style={styles.appShell}>
+          <WidgetScreen
+            onSkip={() => setActiveTab("home")}
+            onAddWidget={handleAddFakeWidget}
+          />
+
+          <StatusBar style="auto" />
+        </View>
+      );
+    }
+
     if (activeTab === "notification") {
       return (
         <SafeAreaView style={styles.notificationScreen}>
@@ -295,29 +412,98 @@ export default function App() {
           {renderMainContent()}
         </View>
 
-        {/* Die untere Navigationsleiste wird NUR angezeigt, wenn wir in den normalen Tabs sind */}
-        {['home', 'history', 'info'].includes(activeTab) && (
+        {["home", "history", "info"].includes(activeTab) && (
           <View style={styles.bottomNavContainer}>
             {tabs.map((tab) => {
               const active = activeTab === tab.id;
+
               return (
                 <TouchableOpacity
                   key={tab.id}
                   onPress={() => setActiveTab(tab.id)}
                   style={styles.tabButton}
                 >
-                  {tab.id === "home" && <Home size={22} color={active ? "#007a7a" : "#a0b8b8"} />}
-                  {tab.id === "history" && <History size={22} color={active ? "#007a7a" : "#a0b8b8"} />}
-                  {tab.id === "info" && <Lightbulb size={22} color={active ? "#007a7a" : "#a0b8b8"} />}
-                  <Text style={[styles.tabTextBase, active ? styles.tabTextActive : styles.tabTextInactive]}>
+                  {tab.id === "home" && (
+                    <Home
+                      size={22}
+                      color={active ? "#007a7a" : "#a0b8b8"}
+                    />
+                  )}
+
+                  {tab.id === "history" && (
+                    <History
+                      size={22}
+                      color={active ? "#007a7a" : "#a0b8b8"}
+                    />
+                  )}
+
+                  {tab.id === "info" && (
+                    <Lightbulb
+                      size={22}
+                      color={active ? "#007a7a" : "#a0b8b8"}
+                    />
+                  )}
+
+                  <Text
+                    style={[
+                      styles.tabTextBase,
+                      active
+                        ? styles.tabTextActive
+                        : styles.tabTextInactive,
+                    ]}
+                  >
                     {tab.label}
                   </Text>
+
                   {active && <View style={styles.activeTabDot} />}
                 </TouchableOpacity>
               );
             })}
           </View>
         )}
+
+        <WidgetPermissionModal
+          visible={widgetPromptVisible}
+          onAllow={handleWidgetAllow}
+          onSkip={handleWidgetSkip}
+        />
+
+        <Modal
+          visible={widgetSuccessVisible}
+          transparent
+          animationType="fade"
+          onRequestClose={handleFinishWidget}
+        >
+          <View style={styles.widgetSuccessOverlay}>
+            <View style={styles.widgetSuccessModal}>
+              <View style={styles.widgetSuccessIconContainer}>
+                <Feather
+                  name="check"
+                  size={32}
+                  color={COLORS.primary}
+                />
+              </View>
+
+              <Text style={styles.widgetSuccessTitle}>
+                Widget hinzugefügt
+              </Text>
+
+              <Text style={styles.widgetSuccessText}>
+                Das Gehörschutz-Widget wurde erfolgreich zu deinem
+                Home-Bildschirm hinzugefügt.
+              </Text>
+
+              <TouchableOpacity
+                style={styles.widgetSuccessButton}
+                onPress={handleFinishWidget}
+              >
+                <Text style={styles.widgetSuccessButtonText}>
+                  Fertig
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
       </View>
     </SafeAreaProvider>
   );
@@ -448,7 +634,60 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   buttonContainer: {
-    marginBottom: 15,
-    width: '80%',
+  marginBottom: 15,
+  width: "80%",
+  },
+
+  widgetSuccessOverlay: {
+    flex: 1,
+    backgroundColor: COLORS.transparent,
+    justifyContent: "center",
+    paddingHorizontal: SPACING.large,
+  },
+
+  widgetSuccessModal: {
+    backgroundColor: COLORS.background,
+    borderRadius: 24,
+    padding: SPACING.large,
+    alignItems: "center",
+  },
+
+  widgetSuccessIconContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: COLORS.secondary,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  widgetSuccessTitle: {
+    ...TYPOGRAPHY.h2,
+    color: COLORS.text,
+    textAlign: "center",
+    marginTop: SPACING.medium,
+  },
+
+  widgetSuccessText: {
+    ...TYPOGRAPHY.body,
+    color: COLORS.textSecondary,
+    textAlign: "center",
+    marginTop: SPACING.small,
+    lineHeight: 22,
+  },
+
+  widgetSuccessButton: {
+    width: "100%",
+    backgroundColor: COLORS.primary,
+    borderRadius: 12,
+    paddingVertical: SPACING.medium,
+    alignItems: "center",
+    marginTop: SPACING.large,
+  },
+
+  widgetSuccessButtonText: {
+    ...TYPOGRAPHY.body,
+    fontWeight: "bold",
+    color: COLORS.background,
   },
 });
