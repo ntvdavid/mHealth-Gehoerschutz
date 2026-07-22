@@ -94,4 +94,3 @@ export const NotificationService = {
         console.log("Alert canceled");
     }
 };
-
