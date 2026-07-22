@@ -9,6 +9,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import HomeScreen from './src/screens/HomeScreen';
 import CalibrationScreen from './src/screens/CalibrationScreen';
+import NotificationScreen from './src/screens/NotificationTest';
 
 import FullscreenConsequencesScreen from './src/screens/recommendations/FullscreenConsequencesScreen';
 import FullscreenRecommendationsScreen from './src/screens/recommendations/FullscreenRecommendationsScreen';
@@ -30,7 +31,6 @@ import { SPACING } from "./src/constants/spacing";
 import { TYPOGRAPHY } from "./src/constants/typography";
 import { NotificationService } from './src/services/notification';
 import { useAudioMeteringService } from './src/audio/useAudioMeteringService';
-
 import { audioMeteringEmitter } from './src/audio/useAudioMeteringService';
 
 const tabs = [
@@ -387,20 +387,10 @@ export default function App() {
 
     if (activeTab === "notification") {
       return (
-        <SafeAreaView style={styles.notificationScreen}>
-          <TouchableOpacity style={styles.backButton} onPress={() => setActiveTab('home')}>
-            <Text style={styles.demoButtonText}>Zurück zum Homescreen</Text>
-          </TouchableOpacity>
-          <Text style={styles.title}>Gehörschutz aktiv</Text>
-          <Text style={styles.subtitle}>Der Bildschirm bleibt an, um dich durchgehend zu warnen.</Text>
-          <View style={styles.buttonContainer}>
-            <Button title="Simuliere Lärm-Warnung" onPress={() => NotificationService.triggerVolumeAlert(85)} color="#d9534f" />
-          </View>
-          <View style={styles.buttonContainer}>
-            <Button title="Stoppe Lärm-Warnung" onPress={() => NotificationService.cancelAlert()} color="#5cb85c" />
-          </View>
+        <View style={styles.appShell}>
+          <NotificationScreen onBack={() => setActiveTab('home')} />
           <StatusBar style="auto" />
-        </SafeAreaView>
+        </View>
       );
     }
 
