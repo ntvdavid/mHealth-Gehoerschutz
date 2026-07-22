@@ -4,16 +4,12 @@ import { ArrowLeft } from 'lucide-react-native';
 import { COLORS } from '../../constants/colors';
 
 import SecondaryButton from '../../components/buttons/SecondaryButton';
-import FullscreenInfoLayout from '../../components/layout/FullscreenInfoLayout';
+import InfoLayout from '../../components/layout/InfoLayout';
 import ConsequencesContent from '../../components/recommendations/ConsequencesContent';
 
-export default function FullscreenConsequencesScreen({
-  onClose,
-  onBackToRecommendations,
-}) {
+export default function InfoConsequencesScreen({ onBackToRecommendations }) {
   return (
-    <FullscreenInfoLayout
-      onClose={onClose}
+    <InfoLayout
       footer={
         <SecondaryButton
           title="Zurück zu den Empfehlungen"
@@ -23,6 +19,6 @@ export default function FullscreenConsequencesScreen({
       }
     >
       <ConsequencesContent />
-    </FullscreenInfoLayout>
+    </InfoLayout>
   );
 }

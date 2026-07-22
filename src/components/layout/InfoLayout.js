@@ -3,11 +3,12 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { COLORS } from '../../constants/colors';
 
-export default function TipsInfoLayout({ children, footer }) {
+export default function InfoLayout({ children, footer }) {
   return (
     <ScrollView
       style={styles.screen}
       contentContainerStyle={styles.scrollContent}
+      showsVerticalScrollIndicator={false}
     >
       {children}
 
@@ -19,14 +20,15 @@ export default function TipsInfoLayout({ children, footer }) {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: COLORS.background || '#f8fafc',
   },
   scrollContent: {
-    paddingHorizontal: 24,
-    paddingTop: 24,
-    paddingBottom: 32,
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    paddingBottom: 30,
+    gap: 16,
   },
   buttonWrapper: {
-    marginTop: 24,
+    marginTop: 8,
   },
 });

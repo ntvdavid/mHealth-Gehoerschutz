@@ -3,7 +3,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { COLORS } from '../../constants/colors';
 
-export default function TipsTabBar({ activeTab, onChangeTab }) {
+export default function InfoTabBar({ activeTab, onChangeTab }) {
   return (
     <View style={styles.container}>
       <TouchableOpacity
@@ -38,33 +38,36 @@ export default function TipsTabBar({ activeTab, onChangeTab }) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#eef4f5',
-    borderRadius: 20,
+    backgroundColor:  '#f3f4f6',
+    borderRadius: 16,
     flexDirection: 'row',
     padding: 4,
-    marginHorizontal: 18,
+    marginHorizontal: 20,
     marginTop: 16,
-    marginBottom: 28,
+    marginBottom: 16,
   },
   tab: {
     flex: 1,
-    minHeight: 36,
-    borderRadius: 18,
+    paddingVertical: 8,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
   },
   activeTab: {
     backgroundColor: COLORS.primary,
-    borderWidth: 2,
-    borderColor: COLORS.text,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 2,
+    elevation: 2,
   },
   tabText: {
-    color: COLORS.text,
+    color: COLORS.text || '#1e293b',
     fontSize: 12,
-    fontWeight: '500',
+    fontWeight: '600',
   },
   activeTabText: {
-    color: COLORS.background,
+    color: COLORS.background || '#ffffff',
     fontWeight: 'bold',
   },
 });

@@ -6,7 +6,7 @@ import { COLORS } from "../../constants/colors";
 import { SPACING } from "../../constants/spacing";
 import { TYPOGRAPHY } from "../../constants/typography";
 
-export default function BottomNavigation({ activeTab, onHomePress, onHistoryPress, onTippsPress})  {
+export default function BottomNavigation({ activeTab, onHomePress, onHistoryPress, onInfoPress})  {
     return (
         <View style={styles.container}>
             <NavItem
@@ -25,9 +25,9 @@ export default function BottomNavigation({ activeTab, onHomePress, onHistoryPres
 
             <NavItem
                 icon="book-open"
-                label="Tipps"
-                active={activeTab === "tips"}
-                onPress={onTippsPress}
+                label="Info"
+                active={activeTab === "info"}
+                onPress={onInfoPress}
             />
 
         </View>

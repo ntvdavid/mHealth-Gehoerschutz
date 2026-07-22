@@ -1,99 +1,166 @@
-import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
-import { HighlightCard, HighlightCardHeader, HighlightCardTitle, HighlightCardContent } from '../components/ui/HighlightCard';
+import React, { useState } from 'react';
+import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import { TrendingDown, TrendingUp } from 'lucide-react-native';
+
+
+import { HighlightCard, HighlightCardContent } from '../components/ui/HighlightCard';
 import { Card } from '../components/ui/Card';
-import ScoringRing from '../components/ui/ScoringRing';
+import ScoreChart from '../components/ui/ScoreChart';
 import { COLORS } from '../constants/colors';
 import StatCard from '../components/home/StatCard';
+import StatCardModal from "../components/home/StatCardModal";
 import WeekStats from '../components/home/WeekStats';
 
 export default function WeeklyReview() {
-  return (
 
+  const [selectedCard, setSelectedCard] = useState(null);
+
+  //Später kommt dieser Score wahrscheinlich aus einer Datenbank oder über "props"
+  const score = 30;
+
+  let cardColor = '';
+  let fontColor = '';
+  let warningMessage = '';
+  let evaluation = '';
+  let evalColor = '';
+  let icon = null;
+
+  if (score >= 65) {
+    cardColor = '#dcfce7'; // Grün
+    fontColor = '#166534';
+    warningMessage = 'Alles im grünen Bereich! Dein Gehör ist gut geschützt.';
+    evaluation = 'Gut';
+    evalColor = COLORS.green;
+    icon = <TrendingUp size={20} color={COLORS.green} />;
+  } else if (score >= 40) {
+    cardColor = '#ffedd5'; // Orange
+    fontColor = '#9a3412';
+    warningMessage = 'Achtung: Dein Gehör wurde diese Woche moderat belastet.';
+    evaluation = 'Moderat';
+    evalColor = COLORS.orange;
+    icon = <TrendingDown size={20} color={COLORS.orange} />;
+  } else {
+    cardColor = '#fee2e2'; // Rot
+    fontColor = '#991b1b';
+    warningMessage = 'Warnung: Kritisches Level erreicht. Schone dein Gehör!';
+    evaluation = 'Kritisch';
+    evalColor = COLORS.warning;
+    icon = <TrendingDown size={20} color={COLORS.warning} />;
+  }
+
+  return (
     <View style={weeklyScreen.view}>
       <ScrollView contentContainerStyle={weeklyScreen.scrollView}>
+
         <HighlightCard>
-          {/* Hier kommt die Warnbox */}
           <HighlightCardContent>
-            {/* Hier kommt dann später echtes Warnbox hin */}
-            <View style={weeklyScreen.warningContainer}>
-              <Text style={weeklyScreen.warningText}>Warnbox Platzhalter</Text>
+            <View style={[weeklyScreen.warningContainer, { backgroundColor: cardColor }]}>
+              <Text style={[weeklyScreen.warningText, { color: fontColor }]}>
+                {warningMessage}
+              </Text>
+              {icon}
             </View>
           </HighlightCardContent>
         </HighlightCard>
 
-
-        <Card>
-          <ScoringRing />
-        </Card>
+        <View style={weeklyScreen.scoreContainer}>
+          <Card style={{ flex: 1, marginRight: 8, borderWidth: 0, shadowOpacity: 0, elevation: 0 }}>
+            <StatCard
+              title="Dein Hearing Score"
+              value={evaluation}
+              subtitle="Je besser dein Score, desto besser schützt du dein Gehör."
+              color={evalColor}
+            />
+            <ScoreChart score={score} />
+          </Card>
+        </View>
 
         <View style={weeklyScreen.statsContainer}>
           <StatCard
-            title="Durchschnitt"
-            value="?%"
+            title="Lautester Tag"
+            subtitle="90 dB"
+            value="Mittwoch"
+            color={COLORS.orange}
+            onPress={() =>
+              setSelectedCard({
+                title: "Lautester Tag",
+                description: "Der Tag in dieser Woche mit der höchsten Lärmbelastung für dein Gehör.",
+              })
+            }
           />
-
           <StatCard
-            title="Peak"
-            value="?"
-            color={COLORS.warning}
+            title="Sicherster Tag"
+            subtitle="70 dB"
+            value="Freitag"
+            color={COLORS.green}
+            onPress={() =>
+              setSelectedCard({
+                title: "Sicherster Tag",
+                description: "Der Tag in dieser Woche mit der geringsten Lärmbelastung für dein Gehör.",
+              })
+            }
           />
-
           <StatCard
-            title="Schädl. Bereich"
-            value="? dB"
+            title="Durchschnittl. Pegel"
+            value="80 dB"
+            color={COLORS.blue}
+            onPress={() =>
+              setSelectedCard({
+                title: "Durchschnittlicher Pegel",
+                description: "Die durchschnittliche Lautstärke über die gesamte Woche hinweg.",
+              })
+            }
           />
         </View>
 
         <WeekStats />
+
+
+        <StatCardModal
+          visible={selectedCard !== null}
+          title={selectedCard?.title}
+          description={selectedCard?.description}
+          onClose={() => setSelectedCard(null)}
+        />
       </ScrollView>
     </View>
   );
 }
 
 const weeklyScreen = StyleSheet.create({
-   view: {
+  view: {
     flexGrow: 1,
     backgroundColor: '#f8fafc',
   },
-  tabContainer: {
-    flex: 1,
-    backgroundColor: '#22c55e',
-    alignItems: 'center',
-    justifyContent: 'center',
-
-
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-
-    marginHorizontal: 8,
-  },
-  statsContainer: {
-    flexDirection: "row",
-    gap: 12,
-  },
-  titelText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#000000',
-  },
   scrollView: {
-    flex: 1,
+    flexGrow: 1,
     backgroundColor: '#f8fafc',
     paddingHorizontal: 20,
     paddingTop: 12,
     paddingBottom: 30,
     gap: 16,
   },
+  statsContainer: {
+    flexDirection: "row",
+    gap: 6,
+    justifyContent: 'space-between',
+  },
+  scoreContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    paddingVertical: 3,
+    backgroundColor: "transparent"
+  },
   warningContainer: {
     height: 160,
-    backgroundColor: '#55fb5b',
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: 20,
   },
   warningText: {
-    color: '#50e054',
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
-
 });

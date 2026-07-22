@@ -42,6 +42,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 16,
     paddingBottom: 32,
+    gap: 16,
   },
   header: {
     alignItems: 'flex-end',
@@ -61,6 +62,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   buttonWrapper: {
-    marginTop: 24,
+    marginTop: 8,
   },
 });
