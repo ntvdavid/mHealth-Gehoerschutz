@@ -21,6 +21,7 @@ import InfoKnowledgeScreen from './src/screens/info/InfoKnowledgeScreen';
 import InfoRecommendationsScreen from './src/screens/info/InfoRecommendationsScreen';
 import InfoRisksScreen from './src/screens/info/InfoRisksScreen';
 import WidgetScreen from "./src/screens/WidgetScreen";
+import MeasurementsScreen from './src/screens/MeasurementsScreen';
 
 import InfoTabBar from './src/components/info/InfoTabBar';
 import WidgetPermissionModal from "./src/components/widget/WidgetPermissionModal";
@@ -267,6 +268,7 @@ export default function App() {
           <HomeScreen
             audioMeter={audioMeter}
             onOpenCalibration={() => setActiveTab('calibration')}
+            onOpenMeasurements={() => setActiveTab('measurements')}
             onNavigateToRecommendations={() => {
               setAlertFlowScreen('recommendations');
               setActiveTab('fullscreen');
@@ -291,6 +293,14 @@ export default function App() {
 
           <StatusBar style='auto'/>
         </View>
+      );
+    }
+
+    if (activeTab === 'measurements') {
+      return (
+        <MeasurementsScreen
+          onBack={() => setActiveTab('home')}
+        />
       );
     }
 

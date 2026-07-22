@@ -21,7 +21,7 @@ import {NotificationService} from "../services/notification";
 import { audioMeteringEmitter } from "../audio/useAudioMeteringService";
 import { COLORS } from "../constants/colors";
 
-export default function HomeScreen({ audioMeter, onOpenCalibration, onNavigateToRecommendations, onNavigateToNotificationTest }) {
+export default function HomeScreen({ audioMeter, onOpenCalibration, onOpenMeasurements, onNavigateToRecommendations, onNavigateToNotificationTest }) {
     const [menuVisible, setMenuVisible] = useState(false);
     const [infoVisible, setInfoVisible] = useState(false);
     const [selectedCard, setSelectedCard] = useState(null);
@@ -232,6 +232,10 @@ export default function HomeScreen({ audioMeter, onOpenCalibration, onNavigateTo
                 onCalibrationPress={() => {
                     setMenuVisible(false);
                     onOpenCalibration();
+                }}
+                onMeasurementsPress={() => {
+                    setMenuVisible(false);
+                    onOpenMeasurements();
                 }}
                 onNotificationsPress={() => {
                     setMenuVisible(false);
