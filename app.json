@@ -28,7 +28,8 @@
           "recordAudioAndroid": true,
           "enableBackgroundRecording": true
         }
-      ]
+      ],
+      "@react-native-community/datetimepicker"
     ]
   }
 }
