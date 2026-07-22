@@ -178,3 +178,27 @@ export const markCalibrationPromptSeen = async () => {
         'true'
     );
 };
+
+export const getTodayPeak = async () => {
+    const now = new Date();
+
+    const startOfDay = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+        0,
+        0,
+        0,
+        0
+    ).getTime();
+
+    const currentTimestamp = Date.now();
+
+    const readings = await getReadings(startOfDay, currentTimestamp);
+
+    if (readings.length === 0) {
+        return null;
+    }
+
+    return Math.max(...readings.map((reading) => reading.db));
+};
