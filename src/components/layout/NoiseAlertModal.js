@@ -1,5 +1,5 @@
-import React, {useState, useEffect} from 'react';
-import {StyleSheet, Text, View, Modal, TouchableOpacity, SafeAreaView} from 'react-native';
+import React, {useState, useEffect, useRef} from 'react';
+import {StyleSheet, Text, View, Modal, TouchableOpacity, SafeAreaView, PanResponder, Animated} from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
 
 import { COLORS} from '../../constants/colors';
@@ -7,45 +7,78 @@ import { SPACING}from '../../constants/spacing';
 import { TYPOGRAPHY } from '../../constants/typography';
 
 // calculation exposition time based on dB value, source: https://www.bgrci.de/praxishandbuch-baustoffindustrie/a-grundlagen/a-1-allgemeines/a-18-laerm
-    const calculateExpositionTime = (db) => {
-        if (db < 85) return "unbegrenzt";
+const calculateExpositionTime = (db) => {
+    if (db < 85) return "unbegrenzt";
 
-        const minutes = 480 * Math.pow(2, (85 - db) / 3);
+    const minutes = 480 * Math.pow(2, (85 - db) / 3);
 
-        if (minutes >= 60) {
-            const hours = Math.floor(minutes / 60);
-            return `${hours} ${hours === 1 ? 'Stunde' : 'Stunden'}`;
-        } else if (minutes >= 1) {
-            return `${Math.round(minutes)} Minuten`;
-        } else {
-            const seconds = Math.round(minutes * 60);
-            return `${seconds} ${seconds === 1 ? 'Sekunde' : 'Sekunden'}`;
-        }
-    };
+    if (minutes >= 60) {
+        const hours = Math.floor(minutes / 60);
+        return `${hours} ${hours === 1 ? 'Stunde' : 'Stunden'}`;
+    } else if (minutes >= 1) {
+        return `${Math.round(minutes)} Minuten`;
+    } else {
+        const seconds = Math.round(minutes * 60);
+        return `${seconds} ${seconds === 1 ? 'Sekunde' : 'Sekunden'}`;
+    }
+};
 
-export default function NoiseAlertModal({visible, currentDb, onClose, onGoToRecommendations}) {
+const THUMB_SIZE = 38; // Size of the slider thumb
 
+export default function NoiseAlertModal({visible, currentDb, onClose, onGoToRecommendations, onAcknowledgeAndStop}) {
+
+    const [containerWidth, setContainerWidth] = useState(0);
     const [triggeredDb, setTriggeredDb] = useState(currentDb); // saves the dB value when alert is triggered 
+    const pan = useRef(new Animated.Value(0)).current; // For swipe gesture
+
+    const swipeRange = containerWidth > 0 ? containerWidth - THUMB_SIZE - 16 : 200;
+
+    const swipeRangeRef = useRef(swipeRange);
+    useEffect(() => {
+        swipeRangeRef.current = swipeRange;
+    }, [swipeRange]);
 
     useEffect(() => {
         if (visible) {
             setTriggeredDb(currentDb); // Update the triggered dB value when the modal becomes visible
+            pan.setValue(0); // Reset the pan value when the modal becomes visible
         }
     }, [visible]);
+
+    const panResponder = useRef(
+        PanResponder.create({
+            onStartShouldSetPanResponder: () => true,
+            onMoveShouldSetPanResponder: () => true,
+            onPanResponderMove: (_, gestureState) => {
+                const newX = Math.max(0, Math.min(gestureState.dx, swipeRangeRef.current));
+                pan.setValue(newX);
+            },
+            onPanResponderRelease: (_, gestureState) => {
+                const currentRange = swipeRangeRef.current;
+                
+                if (gestureState.dx >= currentRange * 0.75) {
+                    Animated.timing(pan, {
+                        toValue: currentRange,
+                        duration: 150,
+                        useNativeDriver: false,
+                    }).start(() => {
+                        onAcknowledgeAndStop?.();
+                        onClose?.();
+                    });
+                } else {
+                    Animated.spring(pan, {
+                        toValue: 0,
+                        useNativeDriver: false,
+                    }).start();
+                }
+            },
+        })
+    ).current;
 
     const handleAction = () => {
         onGoToRecommendations?.();
         onClose?.();
     };
-
-    /*
-    const handleAction = () => {
-        if (onGoToRecommendations) { 
-            onGoToRecommendations(); // Navigate to the recommendations screen
-        }
-        onClose(); // Close the modal
-    }
-*/
 
     return (
         <Modal
@@ -94,13 +127,30 @@ export default function NoiseAlertModal({visible, currentDb, onClose, onGoToReco
                     </View>
                 </View>
 
-                {/* Action button */}
                 <View style={styles.footer}>
+
+                    <View style={styles.sliderContainer} onLayout={(e) => setContainerWidth(e.nativeEvent.layout.width)}>
+                        <Text style={styles.sliderText} pointerEvents="none" numberOfLines={1}>
+                            Warnung wahrgenommen und Messung stoppen
+                        </Text>
+                        <Animated.View
+                            {...panResponder.panHandlers}
+                            style={[
+                                styles.sliderThumb,
+                                {
+                                    transform: [{ translateX: pan }],
+                                },
+                            ]}
+                        >
+                            <Ionicons name="checkmark-sharp" size={20} color={COLORS.warning} />
+                        </Animated.View>
+                    </View>
+
                     <TouchableOpacity style={styles.actionButton} onPress={handleAction}>
                         <Text style={styles.actionButtonText}>Empfehlungen anzeigen</Text>
                     </TouchableOpacity>
-                </View>
 
+                </View>
             </SafeAreaView>
         </Modal>
     );
@@ -193,12 +243,12 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         lineHeight: 18,
     },
-    boldText: {
-        fontWeight: 'bold',
-    },
     footer: {
         paddingHorizontal: SPACING.large,
         paddingBottom: SPACING.large,
+        alignItems: 'center',
+        gap: SPACING.medium,
+        width: '100%',
     },
     actionButton: {
         backgroundColor: COLORS.background,
@@ -211,5 +261,40 @@ const styles = StyleSheet.create({
     actionButtonText: {
         ...TYPOGRAPHY.h3,
         color: COLORS.warning,
+    },
+    sliderContainer: {
+        width: '85%',
+        height: 52,
+        backgroundColor: 'rgba(0,0,0,0.18)',
+        borderRadius: 26,
+        justifyContent: 'center',
+        paddingHorizontal: 4,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.25)',
+        position: 'relative',
+    },
+    sliderText: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        paddingLeft: 56,
+        paddingRight: 16,
+        color: COLORS.background,
+        fontSize: 10,
+        fontWeight: '600',
+        opacity: 0.9,
+    },
+    sliderThumb: {
+        width: 38,
+        height: 38,
+        borderRadius: 19,
+        backgroundColor: COLORS.background,
+        alignItems: 'center',
+        justifyContent: 'center',
+        elevation: 3,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 3,
     },
 });
