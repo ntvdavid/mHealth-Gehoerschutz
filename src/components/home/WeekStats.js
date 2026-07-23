@@ -20,7 +20,7 @@ export default function WeekStats({ weekStats }) {
 
     return (
         <Card>
-            <Text style={styles.title}>Wochenrückbick</Text>
+            <Text style={styles.title}>Wochenrückblick</Text>
 
             <View style={styles.chart}>
                 {weekData.map((item) => (

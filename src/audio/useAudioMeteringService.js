@@ -63,7 +63,7 @@ export const audioMeteringEmitter = new SimpleEmitter();
 // - extern: ein zweites Gerät mit derselben App spielt ihn ab
 //   (siehe ExternalTonePlayerScreen.js) - daher wird hier keine separate
 //   Tondatei mehr benötigt.
-const TONE_ASSET_INTERNAL = require('../assets/calibration-tone.wav');
+const TONE_ASSET_INTERNAL = require('../../assets/calibration-tone.wav');
 
 const SILENCE_PHASE_DURATION_MS = 30_000;
 const SILENCE_SAMPLE_INTERVAL_MS = 1_000;
@@ -117,6 +117,11 @@ const median = (arr) => {
     : (sorted[mid - 1] + sorted[mid]) / 2;
 };
 
+const isValidRawMetering = (value) =>
+  typeof value === 'number' &&
+  Number.isFinite(value) &&
+  value > -159;
+
 // -------------------------------------------------------------------------
 // Haupt-Hook
 // -------------------------------------------------------------------------
@@ -141,6 +146,7 @@ export function useAudioMeteringService(options = {}) {
   );
 
   const [permissionGranted, setPermissionGranted] = useState(false);
+  const [permissionResolved, setPermissionResolved] = useState(false);
   const [isCalibrating, setIsCalibrating] = useState(false);
   const [calibrationProgress, setCalibrationProgress] = useState(null);
   const [calibration, setCalibration] = useState(null);
@@ -176,20 +182,25 @@ export function useAudioMeteringService(options = {}) {
 
   // ---- Berechtigung --------------------------------------------------------
   const requestPermission = useCallback(async () => {
-    const status = await AudioModule.requestRecordingPermissionsAsync();
-    setPermissionGranted(status.granted);
-    if (status.granted) {
-      await setAudioModeAsync({
-        allowsRecording: true,
-        playsInSilentMode: true,
-      });
-    }
-    return status.granted;
-  }, []);
+    try {
+      const status = 
+        await AudioModule.requestRecordingPermissionsAsync();
 
-  useEffect(() => {
-    requestPermission();
-  }, [requestPermission]);
+      setPermissionGranted(status.granted);
+
+      if (status.granted) {
+        await setAudioModeAsync({
+          allowsRecording: true,
+          playsInSilentMode: true,
+          allowsBackgroundRecording: true,
+        });
+      }
+
+      return status.granted;
+    } finally {
+      setPermissionResolved(true);
+    }
+  }, []);
 
   // ---- Start/Stop mit Fallback für nicht unterstützte Audioquelle ---------
   const prepareRecorderRobust = useCallback(async () => {
@@ -222,12 +233,25 @@ export function useAudioMeteringService(options = {}) {
   // ---- Kontinuierliches Auslesen + Rohdaten-Service + Persistenz ----------
   useEffect(() => {
     const raw = recorderState?.metering;
-    if (raw === undefined || raw === null) return;
-    if (raw === lastEmittedMeteringRef.current) return;
+    if (!isValidRawMetering(raw)) {
+      return;
+    }
+    if (raw === lastEmittedMeteringRef.current) {
+      return;
+    } 
+
     lastEmittedMeteringRef.current = raw;
 
     const now = Date.now();
     const calibratedDb = calibration ? raw + calibration.offsetDb : null;
+
+    const hasValidCalibratedValue = 
+      Number.isFinite(calibratedDb) &&
+      calibratedDb >= 0;
+
+    if (!hasValidCalibratedValue) {
+      return;
+    }
 
     const sample = {
       timestamp: now,
@@ -243,15 +267,16 @@ export function useAudioMeteringService(options = {}) {
 
     // Throttled Persistenz - nur speichern, wenn ein dB-Wert vorliegt
     // (kalibriert falls möglich, sonst roher dBFS-Wert als Fallback)
+
     if (
       persistSamples &&
       storageReady &&
       recorderState.isRecording &&
+      hasValidCalibratedValue && 
       now - lastStorageWriteRef.current >= storageIntervalMs
     ) {
       lastStorageWriteRef.current = now;
-      const valueToStore = calibratedDb ?? raw;
-      appendReading({ timestamp: now, db: valueToStore }).catch((e) =>
+      appendReading({ timestamp: now, db: calibratedDb }).catch((e) =>
         console.warn('[storage] Fehler beim Speichern der Messung:', e)
       );
     }
@@ -274,7 +299,7 @@ export function useAudioMeteringService(options = {}) {
         await sleep(intervalMs);
         const status = recorder.getStatus();
         const value = status?.metering;
-        if (typeof value === 'number' && Number.isFinite(value)) {
+        if (isValidRawMetering(value)) {
           samples.push(value);
         }
         onTick?.(i + 1, steps, value);
@@ -432,17 +457,32 @@ export function useAudioMeteringService(options = {}) {
 
   return {
     permissionGranted,
+    permissionResolved,
     requestPermission,
 
     startRecording,
     stopRecording,
     isRecording: recorderState?.isRecording ?? false,
 
-    currentRawDbfs: recorderState?.metering ?? null,
-    currentCalibratedDb: recorderState?.metering
-      ? toCalibratedDb(recorderState.metering)
+    currentRawDbfs: isValidRawMetering(
+      recorderState?.metering
+    )
+      ? recorderState.metering
       : null,
-    rawBuffer: rawBufferRef.current,
+
+    currentCalibratedDb: (() => {
+      const raw = recorderState?.metering;
+
+      if (!isValidRawMetering(raw)) {
+        return null;
+      }
+
+      const value = toCalibratedDb(raw);
+
+      return Number.isFinite(value) && value >= 0
+        ? value
+        : null;
+    })(),
 
     runCalibration,
     confirmToneReady,

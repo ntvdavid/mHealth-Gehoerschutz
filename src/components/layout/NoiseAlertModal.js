@@ -1,0 +1,300 @@
+import React, {useState, useEffect, useRef} from 'react';
+import {StyleSheet, Text, View, Modal, TouchableOpacity, SafeAreaView, PanResponder, Animated} from 'react-native';
+import {Ionicons} from '@expo/vector-icons';
+
+import { COLORS} from '../../constants/colors';
+import { SPACING}from '../../constants/spacing';
+import { TYPOGRAPHY } from '../../constants/typography';
+
+// calculation exposition time based on dB value, source: https://www.bgrci.de/praxishandbuch-baustoffindustrie/a-grundlagen/a-1-allgemeines/a-18-laerm
+const calculateExpositionTime = (db) => {
+    if (db < 85) return "unbegrenzt";
+
+    const minutes = 480 * Math.pow(2, (85 - db) / 3);
+
+    if (minutes >= 60) {
+        const hours = Math.floor(minutes / 60);
+        return `${hours} ${hours === 1 ? 'Stunde' : 'Stunden'}`;
+    } else if (minutes >= 1) {
+        return `${Math.round(minutes)} Minuten`;
+    } else {
+        const seconds = Math.round(minutes * 60);
+        return `${seconds} ${seconds === 1 ? 'Sekunde' : 'Sekunden'}`;
+    }
+};
+
+const THUMB_SIZE = 38; // Size of the slider thumb
+
+export default function NoiseAlertModal({visible, currentDb, onClose, onGoToRecommendations, onAcknowledgeAndStop}) {
+
+    const [containerWidth, setContainerWidth] = useState(0);
+    const [triggeredDb, setTriggeredDb] = useState(currentDb); // saves the dB value when alert is triggered 
+    const pan = useRef(new Animated.Value(0)).current; // For swipe gesture
+
+    const swipeRange = containerWidth > 0 ? containerWidth - THUMB_SIZE - 16 : 200;
+
+    const swipeRangeRef = useRef(swipeRange);
+    useEffect(() => {
+        swipeRangeRef.current = swipeRange;
+    }, [swipeRange]);
+
+    useEffect(() => {
+        if (visible) {
+            setTriggeredDb(currentDb); // Update the triggered dB value when the modal becomes visible
+            pan.setValue(0); // Reset the pan value when the modal becomes visible
+        }
+    }, [visible]);
+
+    const panResponder = useRef(
+        PanResponder.create({
+            onStartShouldSetPanResponder: () => true,
+            onMoveShouldSetPanResponder: () => true,
+            onPanResponderMove: (_, gestureState) => {
+                const newX = Math.max(0, Math.min(gestureState.dx, swipeRangeRef.current));
+                pan.setValue(newX);
+            },
+            onPanResponderRelease: (_, gestureState) => {
+                const currentRange = swipeRangeRef.current;
+                
+                if (gestureState.dx >= currentRange * 0.75) {
+                    Animated.timing(pan, {
+                        toValue: currentRange,
+                        duration: 150,
+                        useNativeDriver: false,
+                    }).start(() => {
+                        onAcknowledgeAndStop?.();
+                        onClose?.();
+                    });
+                } else {
+                    Animated.spring(pan, {
+                        toValue: 0,
+                        useNativeDriver: false,
+                    }).start();
+                }
+            },
+        })
+    ).current;
+
+    const handleAction = () => {
+        onGoToRecommendations?.();
+        onClose?.();
+    };
+
+    return (
+        <Modal
+        visible={visible}
+        animationType="slide"
+        transparent={false}
+        >
+            <SafeAreaView style={styles.alarmContainer}>
+
+                {/* Header with close button */}     
+                <View style={styles.header}>
+                    <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+                        <Ionicons name="close" size={28} color={COLORS.background} />
+                    </TouchableOpacity>
+                </View>
+
+                {/*Main content */}
+                <View style={styles.content}>
+                    <View style={styles.iconCircle}>
+                        <Ionicons name="warning-outline" size={50} color={COLORS.background} />
+                    </View>
+
+                    <Text style={styles.alarmTitle}>
+                        Kritische Lautstärke{'\n'}erkannt
+                    </Text>
+
+                    {/* Decibel map - static value*/}
+                     <View style={styles.dbCard}>
+                        <Text style={styles.dbCardSub}>Gemessen:</Text>
+                        <Text style={styles.dbCardValue}>{triggeredDb} dB</Text>
+                    </View>
+
+                    {/* Description */}
+                    <Text style={styles.description}>
+                        Bei dieser Lautstärke können bereits nach kurzer Zeit dauerhafte Hörschäden entstehen. Schütze dein Gehör jetzt!
+                    </Text>
+
+                    {/* dynamic Time-Warning, Source: https://www.bgrci.de/praxishandbuch-baustoffindustrie/a-grundlagen/a-1-allgemeines/a-18-laerm */} 
+                    <View style={styles.infoBox}>
+                        <Text style={styles.infoText}> 
+                           📋 Bei {triggeredDb} dB liegt die empfohlene Expositionszeit bei etwa{' '}
+                           <Text style={{fontWeight: 'bold'}}>
+                            {calculateExpositionTime(triggeredDb)}
+                           </Text>.
+                        </Text>
+                    </View>
+                </View>
+
+                <View style={styles.footer}>
+
+                    <View style={styles.sliderContainer} onLayout={(e) => setContainerWidth(e.nativeEvent.layout.width)}>
+                        <Text style={styles.sliderText} pointerEvents="none" numberOfLines={1}>
+                            Warnung wahrgenommen und Messung stoppen
+                        </Text>
+                        <Animated.View
+                            {...panResponder.panHandlers}
+                            style={[
+                                styles.sliderThumb,
+                                {
+                                    transform: [{ translateX: pan }],
+                                },
+                            ]}
+                        >
+                            <Ionicons name="checkmark-sharp" size={20} color={COLORS.warning} />
+                        </Animated.View>
+                    </View>
+
+                    <TouchableOpacity style={styles.actionButton} onPress={handleAction}>
+                        <Text style={styles.actionButtonText}>Empfehlungen anzeigen</Text>
+                    </TouchableOpacity>
+
+                </View>
+            </SafeAreaView>
+        </Modal>
+    );
+}
+
+const styles = StyleSheet.create({
+    alarmContainer: {
+        flex: 1,
+        backgroundColor: COLORS.warning,
+    },
+    header: {
+        height: 50,
+        alignItems: 'flex-end',
+        justifyContent: 'center',
+        paddingHorizontal: SPACING.large,
+    },
+    closeButton: {
+        backgroundColor: COLORS.transparent,
+        padding: SPACING.small,
+        borderRadius: 20,
+    },
+    content: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: SPACING.xlarge,
+    },
+    iconCircle: {
+        width: 90,
+        height: 90,
+        borderRadius: 45,
+        backgroundColor: COLORS.transparent,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: SPACING.large,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.2)',
+    },
+    alarmTitle: {
+        ...TYPOGRAPHY.h1,
+        color: COLORS.background,
+        textAlign: 'center',
+        marginBottom: SPACING.large,
+    },
+    dbCard: {
+        backgroundColor: COLORS.background,
+        width: '100%',
+        borderRadius: 24,
+        paddingVertical: SPACING.large,
+        alignItems: 'center',
+        marginBottom: SPACING.large,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.15,
+        shadowRadius: 10,
+        elevation: 5,
+    },
+    dbCardSub: {
+        ...TYPOGRAPHY.caption,
+        color: COLORS.textSecondary,
+        fontWeight: 'bold',
+        textTransform: 'uppercase',
+        letterSpacing: 1,
+        marginBottom: SPACING.xsmall,
+    },
+    dbCardValue: {
+        color: COLORS.warning,
+        fontSize: 54,
+        fontWeight: '900',
+    },
+    description: {
+        ...TYPOGRAPHY.body,
+        color: COLORS.background,
+        textAlign: 'center',
+        lineHeight: 22,
+        marginBottom: SPACING.large,
+        opacity: 0.9,
+    },
+    infoBox: {
+        backgroundColor: COLORS.transparent,
+        borderRadius: SPACING.medium,
+        padding: SPACING.medium,
+        width: '100%',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.15)',
+    },
+    infoText: {
+        ...TYPOGRAPHY.caption,
+        color: COLORS.background,
+        textAlign: 'center',
+        lineHeight: 18,
+    },
+    footer: {
+        paddingHorizontal: SPACING.large,
+        paddingBottom: SPACING.large,
+        alignItems: 'center',
+        gap: SPACING.medium,
+        width: '100%',
+    },
+    actionButton: {
+        backgroundColor: COLORS.background,
+        width: '100%',
+        paddingVertical: SPACING.medium,
+        borderRadius: 28,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    actionButtonText: {
+        ...TYPOGRAPHY.h3,
+        color: COLORS.warning,
+    },
+    sliderContainer: {
+        width: '85%',
+        height: 52,
+        backgroundColor: 'rgba(0,0,0,0.18)',
+        borderRadius: 26,
+        justifyContent: 'center',
+        paddingHorizontal: 4,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.25)',
+        position: 'relative',
+    },
+    sliderText: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        paddingLeft: 56,
+        paddingRight: 16,
+        color: COLORS.background,
+        fontSize: 10,
+        fontWeight: '600',
+        opacity: 0.9,
+    },
+    sliderThumb: {
+        width: 38,
+        height: 38,
+        borderRadius: 19,
+        backgroundColor: COLORS.background,
+        alignItems: 'center',
+        justifyContent: 'center',
+        elevation: 3,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 3,
+    },
+});
