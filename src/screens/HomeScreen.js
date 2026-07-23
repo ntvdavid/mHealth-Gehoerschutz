@@ -21,7 +21,7 @@ import {NotificationService} from "../services/notification";
 import { audioMeteringEmitter } from "../audio/useAudioMeteringService";
 import { COLORS } from "../constants/colors";
 
-export default function HomeScreen({ audioMeter, onOpenCalibration, onNavigateToRecommendations, onNavigateToNotificationTest }) {
+export default function HomeScreen({ audioMeter, notificationAlert, onNotificationAlertHandled, onOpenCalibration, onOpenMeasurements, onNavigateToRecommendations, onNavigateToNotificationTest }) {
     const [menuVisible, setMenuVisible] = useState(false);
     const [infoVisible, setInfoVisible] = useState(false);
     const [selectedCard, setSelectedCard] = useState(null);
@@ -50,7 +50,24 @@ export default function HomeScreen({ audioMeter, onOpenCalibration, onNavigateTo
     }, []);
 
     useEffect(() => {
-        NotificationService.init();
+        if (
+            !notificationAlert ||
+            !Number.isFinite(notificationAlert.noiseLevel)
+        ) {
+            return;
+        }
+
+        setNoiseLevel(notificationAlert.noiseLevel);
+        setAlertVisible(true);
+
+        onNotificationAlertHandled?.();
+    }, [
+        notificationAlert,
+        onNotificationAlertHandled,
+    ]);
+
+    useEffect(() => {
+        // NotificationService.init();
         
         const unsubscribe = audioMeteringEmitter.on((sample) => {
 
@@ -78,7 +95,14 @@ export default function HomeScreen({ audioMeter, onOpenCalibration, onNavigateTo
 
             if (roundedDb >= WARNING_THRESHOLD_DB && !alertVisible) {
                 setAlertVisible(true);
-                NotificationService.triggerVolumeAlert(roundedDb);
+                NotificationService
+                    .triggerVolumeAlert(roundedDb)
+                    .catch((error) => {
+                        console.warn(
+                            "Lärmwarnung konnte nicht ausgelöst werden:",
+                            error
+                        );
+                    });
             }
         });
 
@@ -232,6 +256,10 @@ export default function HomeScreen({ audioMeter, onOpenCalibration, onNavigateTo
                 onCalibrationPress={() => {
                     setMenuVisible(false);
                     onOpenCalibration();
+                }}
+                onMeasurementsPress={() => {
+                    setMenuVisible(false);
+                    onOpenMeasurements();
                 }}
                 onNotificationsPress={() => {
                     setMenuVisible(false);
