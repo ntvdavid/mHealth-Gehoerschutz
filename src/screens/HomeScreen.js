@@ -300,6 +300,9 @@ export default function HomeScreen({ audioMeter, notificationAlert, onNotificati
                     NotificationService.cancelAlert();
                 }}
                 onGoToRecommendations={onNavigateToRecommendations}
+                onAcknowledgeAndStop={() => {
+                    stopRecording?.();
+                }}
             />  
         </SafeAreaView>
     );
