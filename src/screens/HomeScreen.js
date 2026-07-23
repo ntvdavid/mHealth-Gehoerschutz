@@ -13,6 +13,7 @@ import DBInfo from "../components/home/DBInfo";
 import NotificationSettingsScreen from "./NotificationSettingsScreen";
 import PrivacySettingsScreen from "./PrivacySettingsScreen";
 import AboutAppScreen from "./AboutAppScreen";
+import { getTodayPeak } from "../audio/storage";
 
 import NoiseAlertModal from "../components/layout/NoiseAlertModal";
 import {NotificationService} from "../services/notification";
@@ -20,19 +21,53 @@ import {NotificationService} from "../services/notification";
 import { audioMeteringEmitter } from "../audio/useAudioMeteringService";
 import { COLORS } from "../constants/colors";
 
-export default function HomeScreen({ audioMeter, onOpenCalibration, onNavigateToRecommendations, onNavigateToNotificationTest }) {
+export default function HomeScreen({ audioMeter, notificationAlert, onNotificationAlertHandled, onOpenCalibration, onOpenMeasurements, onNavigateToRecommendations, onNavigateToNotificationTest }) {
     const [menuVisible, setMenuVisible] = useState(false);
     const [infoVisible, setInfoVisible] = useState(false);
     const [selectedCard, setSelectedCard] = useState(null);
     const [alertVisible, setAlertVisible] = useState(false);
     const [noiseLevel, setNoiseLevel] = useState(null);
+    const [todayPeak, setTodayPeak] = useState(null);
 
     const [activeSettingsPage, setActiveSettingsPage] = useState(null);
 
     const isDemoMode = useRef(false);
 
+    const loadTodayPeak = async () => {
+        try {
+            const peak = await getTodayPeak();
+            setTodayPeak(peak);
+        } catch (error) {
+            console.warn(
+                "[HomeScreen] Tages-Peak konnte nicht geladen werden:",
+                error
+            );
+        }
+    };
+
     useEffect(() => {
-        NotificationService.init();
+        loadTodayPeak();
+    }, []);
+
+    useEffect(() => {
+        if (
+            !notificationAlert ||
+            !Number.isFinite(notificationAlert.noiseLevel)
+        ) {
+            return;
+        }
+
+        setNoiseLevel(notificationAlert.noiseLevel);
+        setAlertVisible(true);
+
+        onNotificationAlertHandled?.();
+    }, [
+        notificationAlert,
+        onNotificationAlertHandled,
+    ]);
+
+    useEffect(() => {
+        // NotificationService.init();
         
         const unsubscribe = audioMeteringEmitter.on((sample) => {
 
@@ -45,13 +80,29 @@ export default function HomeScreen({ audioMeter, onOpenCalibration, onNavigateTo
             }
 
             const roundedDb = Math.round(sample.calibratedDb);
+            
             setNoiseLevel(roundedDb);
+
+            setTodayPeak((prevPeak) => {
+                if (prevPeak === null) {
+                    return sample.calibratedDb;
+                }
+
+                return Math.max(prevPeak, sample.calibratedDb);
+            });
 
             const WARNING_THRESHOLD_DB = 100;
 
             if (roundedDb >= WARNING_THRESHOLD_DB && !alertVisible) {
                 setAlertVisible(true);
-                NotificationService.triggerVolumeAlert(roundedDb);
+                NotificationService
+                    .triggerVolumeAlert(roundedDb)
+                    .catch((error) => {
+                        console.warn(
+                            "Lärmwarnung konnte nicht ausgelöst werden:",
+                            error
+                        );
+                    });
             }
         });
 
@@ -67,6 +118,7 @@ export default function HomeScreen({ audioMeter, onOpenCalibration, onNavigateTo
         setAlertVisible(true);
         NotificationService.triggerVolumeAlert(DEMO_DB_VALUE);
     }
+
 
     const { 
         currentCalibratedDb,
@@ -176,15 +228,21 @@ export default function HomeScreen({ audioMeter, onOpenCalibration, onNavigateTo
                         }
                     />
 
-                    <StatCard 
+                    <StatCard
                         title="Peak heute"
-                        value="85 dB"
+                        value={
+                            todayPeak !== null
+                                ? `${Math.round(todayPeak)} dB`
+                                : "– dB"
+                        }
                         color={COLORS.warning}
                         onPress={() =>
                             setSelectedCard({
                                 title: "Peak heute",
                                 description:
-                                    "Dies ist der höchste heute gemessene Lautstärkewert.",
+                                    todayPeak !== null
+                                        ? `Der höchste heute gemessene Lautstärkewert beträgt ${Math.round(todayPeak)} dB.`
+                                        : "Heute wurde noch kein Lautstärkewert gemessen.",
                             })
                         }
                     />
@@ -198,6 +256,10 @@ export default function HomeScreen({ audioMeter, onOpenCalibration, onNavigateTo
                 onCalibrationPress={() => {
                     setMenuVisible(false);
                     onOpenCalibration();
+                }}
+                onMeasurementsPress={() => {
+                    setMenuVisible(false);
+                    onOpenMeasurements();
                 }}
                 onNotificationsPress={() => {
                     setMenuVisible(false);
@@ -238,6 +300,9 @@ export default function HomeScreen({ audioMeter, onOpenCalibration, onNavigateTo
                     NotificationService.cancelAlert();
                 }}
                 onGoToRecommendations={onNavigateToRecommendations}
+                onAcknowledgeAndStop={() => {
+                    stopRecording?.();
+                }}
             />  
         </SafeAreaView>
     );
@@ -250,7 +315,7 @@ const styles = StyleSheet.create({
     },
     content: {
         paddingHorizontal: 20,
-        paddingTop: 12,
+        paddingTop: 8,
         paddingBottom: 30,
         gap: 16,
     },

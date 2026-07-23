@@ -6,7 +6,7 @@ import { COLORS } from "../../constants/colors";
 import { SPACING } from "../../constants/spacing";
 import { TYPOGRAPHY } from "../../constants/typography";
 
-export default function SideMenu({ visible, onClose, onCalibrationPress, onNotificationsPress, onPrivacyPress, onAboutPress, onNotificationTestPress }) { 
+export default function SideMenu({ visible, onClose, onCalibrationPress, onMeasurementsPress, onNotificationsPress, onPrivacyPress, onAboutPress, onNotificationTestPress }) { 
     return(
         <Modal
             visible={visible}
@@ -41,6 +41,11 @@ export default function SideMenu({ visible, onClose, onCalibrationPress, onNotif
                         title="Grenzwert anpassen"
                         subtitle="Mikrofon kalibrieren und Grenzwerte einstellen"
                         onPress={onCalibrationPress}
+                    />
+                    <MenuItem
+                        title="Messdaten"
+                        subtitle="Gespeicherte Messwerte anzeigen"
+                        onPress={onMeasurementsPress}
                     />
                     <MenuItem
                         title="Notification testen"

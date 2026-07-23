@@ -69,7 +69,7 @@ export default function AboutAppScreen({ onBack }) {
                     </View>
 
                     <Text style={styles.appName}>
-                        Gehoerschutz
+                        Gehörschutz
                     </Text>
 
                     <Text style={styles.version}>
@@ -83,7 +83,7 @@ export default function AboutAppScreen({ onBack }) {
 
                 <Card style={styles.missionCard}>
                     <Text style={styles.missionText}>
-                        Gehoerschutz hilft Menschen, die regelmäßig lauten
+                        Gehörschutz hilft Menschen, die regelmäßig lauten
                         Umgebungen ausgesetzt sind, ein Bewusstsein für
                         Lautstärke und ihre möglichen Risiken zu entwickeln.
                     </Text>
@@ -157,7 +157,7 @@ export default function AboutAppScreen({ onBack }) {
                     />
 
                     <Text style={styles.thankYouText}>
-                        Danke, dass du dabei hilfst, Gehoerschutz zu testen und
+                        Danke, dass du dabei hilfst, Gehörschutz zu testen und
                         weiterzuentwickeln.
                     </Text>
                 </Card>

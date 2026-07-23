@@ -1,6 +1,8 @@
 import * as Notifications from 'expo-notifications';
 import { Vibration, Platform } from 'react-native';
 
+const NOISE_CHANNEL_ID = 'noise-alerts-v2';
+
 let vibrationInterval = null;
 
 Notifications.setNotificationHandler({
@@ -21,8 +23,15 @@ export const NotificationService = {
         let finalStatus = existingStatus;
 
         if (existingStatus !== 'granted') {
-            const { status } = await Notifications.requestPermissionsAsync();
-            finalStatus = status;
+            const result =
+                await Notifications.requestPermissionsAsync({
+                    ios: {
+                        allowAlert: true,
+                        allowSound: true,
+                        allowBadge: false,
+                    },
+                });
+                finalStatus = result.status;
         }
 
         if (finalStatus !== 'granted') {
@@ -31,33 +40,60 @@ export const NotificationService = {
         }
 
         if (Platform.OS === 'android') { 
-            await Notifications.setNotificationChannelAsync('noise-alerts', {
-                name: 'Lärm-Warnungen',
-                importance: Notifications.AndroidImportance.MAX,
-                vibrate: false,
-                lightColor: '#FF231F7C',
-            });
+            await Notifications.setNotificationChannelAsync(
+                NOISE_CHANNEL_ID,
+                {
+                    name: 'Lärm-Warnung',
+                    description: 'Warnungen bei einer zu hohen Lautstärke.',
+                    importance: Notifications.AndroidImportance.MAX,
+                    sound: 'default',
+                    enableVibrate: true,
+                    lightColor: '#FF231F7C',
+                    lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
+                }
+            );
         }
+
         console.log("Notification successfully initialized");
         return true;
     },
 
     // Trigger Noise warning
     async triggerVolumeAlert(currentDb) {
+        const roundedDb = Math.round(currentDb);
+
+        if (!Number.isFinite(roundedDb)) {
+            return false;
+        }
+
         this.cancelAlert(); 
 
         await Notifications.scheduleNotificationAsync({
             content: {
                 title: "Lärm-Warnung",
-                body: `Achtung! Der aktuelle Lärmpegel beträgt ${currentDb} dB.`,
-                data: { noiseLevel: currentDb },
-                sound: true,
-                android: {
-                    channelId: 'noise-alerts',
-                    color: '#FF0000',
+                body: `Achtung! Der aktuelle Lärmpegel beträgt ${roundedDb} dB.`,
+                data: { 
+                    type: 'noise-alert',
+                    noiseLevel: roundedDb 
                 },
+                sound: 'default',
+
+                ...(Platform.OS == 'ios' && {
+                    interruptionLevel: 'timeSensitive',
+                }),
+
+                ...(Platform.OS == 'android' && {
+                    priority:
+                        Notifications.AndroidNotificationPriority.MAX,
+                        color: '#FF0000',
+                }),
             },
-            trigger: null, // Sofortige Benachrichtigung
+            trigger:
+                Platform.OS === 'android'
+                    ? {
+                        channelId: NOISE_CHANNEL_ID,
+                      }
+                    : null,
         });
 
         let durationCounter = 0;
@@ -71,8 +107,8 @@ export const NotificationService = {
                     this.cancelAlert();
                 }
             }, 500);
-        } else {
-            const intervalTime = 300; // Vibrate every second
+        } else if (Platform.OS === 'ios') {
+            const intervalTime = 1000; // Vibrate every second
             Vibration.vibrate(); // Initial vibration for iOS
 
             vibrationInterval = setInterval(() => {
@@ -83,6 +119,49 @@ export const NotificationService = {
                 }
             }, intervalTime);
         }
+        return true;
+    },
+
+    addNoiseAlertResponseListener(callback) {
+        const subscription =
+            Notifications.addNotificationResponseReceivedListener(
+                (response) => {
+                    const data =
+                        response.notification.request.content.data;
+
+                    if (data?.type !== "noise-alert") {
+                        return;
+                    }
+
+                    const noiseLevel = Number(data.noiseLevel);
+
+                    if (Number.isFinite(noiseLevel)) {
+                        callback(noiseLevel);
+                    }
+                }
+            );
+        
+        return () => subscription.remove();
+    },
+
+    async getLastNoiseAlertResponse() {
+        const response =
+            await Notifications.getLastNotificationResponseAsync();
+
+        const data =
+            response?.notification?.request?.content?.data;
+
+        if (data?.type !== "noise.alert") {
+            return null;
+        }
+
+        await Notifications.clearLastNotificationResponseAsync();
+
+        const noiseLevel = Number(data.noiseLevel);
+
+        return Number.isFinite(noiseLevel)
+            ? noiseLevel
+            : null;
     },
 
     cancelAlert() {
@@ -94,4 +173,3 @@ export const NotificationService = {
         console.log("Alert canceled");
     }
 };
-
