@@ -64,6 +64,9 @@ export default function App() {
   const calibrationPromptCheckedRef = useRef(false);
   const microphonePermissionRequestedRef = useRef(false);
 
+  const [activeTab, setActiveTab] = useState("home");
+  const [notificationAlert, setNotificationAlert] = useState(null);
+
   useEffect(() => {
     const initializeNotifications = async () => {
       try {
@@ -78,6 +81,48 @@ export default function App() {
       }
     };
     initializeNotifications();
+  }, []);
+
+  useEffect(() => {
+    const openNoiseAlert = (noiseLevel) => {
+      if (!Number.isFinite(noiseLevel)) {
+        return;
+      }
+
+      setNotificationAlert({
+        noiseLevel,
+        id: Date.now(),
+      });
+
+      setActiveTab("home");
+    };
+
+      const removeResponseListener =
+        NotificationService.addNoiseAlertResponseListener(
+          openNoiseAlert
+        );
+
+      const checkInitialNotification = async () => {
+        try {
+          const noiseLevel = 
+            await NotificationService.getLastNoiseAlertResponse();
+
+            if (Number.isFinite(noiseLevel)) {
+              openNoiseAlert(noiseLevel);
+            }
+        } catch (error) {
+          console.warn(
+            "Angeklickte Lärmwarnung konnte nicht verarbeitet werden:",
+            error
+          );
+        }
+      };
+
+      checkInitialNotification();
+
+      return () => {
+        removeResponseListener();
+      };
   }, []);
 
   useEffect(() => {
@@ -200,9 +245,6 @@ export default function App() {
       widgetPromptResolved,
     ]);
 
-  // 1. HAUPT-NAVIGATION
-  const [activeTab, setActiveTab] = useState("home");
-
   // 2. SUB-STATES FÜR DIE EINZELNEN SCREENS
   const [historyTab, setHistoryTab] = useState("Tagesrückblick");
   const [infoScreen, setInfoScreen] = useState('recommendations');
@@ -267,6 +309,10 @@ export default function App() {
         <View style={styles.appShell}>
           <HomeScreen
             audioMeter={audioMeter}
+            notificationAlert={notificationAlert}
+            onNotificationAlertHandled={() => 
+              setNotificationAlert(null)
+            }
             onOpenCalibration={() => setActiveTab('calibration')}
             onOpenMeasurements={() => setActiveTab('measurements')}
             onNavigateToRecommendations={() => {

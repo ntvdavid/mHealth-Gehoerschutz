@@ -192,6 +192,7 @@ export function useAudioMeteringService(options = {}) {
         await setAudioModeAsync({
           allowsRecording: true,
           playsInSilentMode: true,
+          allowsBackgroundRecording: true,
         });
       }
 
