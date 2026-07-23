@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { ChevronRight, TriangleAlert, ShieldIcon, Baby, Tv, MusicIcon, Plane, Mic, HeadphonesIcon } from 'lucide-react-native';
-import ScoringRing from '../../components/ui/ScoringRing';
+import ScoreChart from '../../components/ui/ScoreChart';
 import InfoLayout from '../../components/layout/InfoLayout';
 import InfoSectionHeader from '../../components/info/InfoSectionHeader';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '../../components/ui/Card';
@@ -11,14 +11,15 @@ import { HighlightCard, HighlightCardContent } from '../../components/ui/Highlig
 export default function InfoKnowledgeScreen() {
   return (
     <InfoLayout>
-      <InfoSectionHeader title="Wusstest du schon?">
-        Wissen, das dein Gehör schützt. Hier findest du alles, was du über Lärm, Hörverlust und Prävention wissen musst.
+      <InfoSectionHeader
+        title="Wusstest du schon?"
+        children="Wissen, das dein Gehör schützt. Hier findest du alles, was du über Lärm, Hörverlust und Prävention wissen musst.">
       </InfoSectionHeader>
 
       <Card style={styles.card}>
         <CardHeader style={styles.cardHeader}>
           <TriangleAlert size={20} color="#007a7a" />
-          <CardTitle style={styles.title}>10 dB mehr bedeuten doppelt so laut</CardTitle>
+          <CardTitle style={styles.title}> 10 dB mehr bedeuten doppelt so laut </CardTitle>
         </CardHeader>
 
         <CardContent style={styles.scoreContainer}>
@@ -38,7 +39,8 @@ export default function InfoKnowledgeScreen() {
       <Card style={styles.card}>
         <CardContent style={styles.scoreContainer}>
           <View style={styles.ringWrapper}>
-            <ScoringRing />
+            {/* Hier wird der ScoreChart mit einem Beispielwert von 85 angezeigt */}
+            <ScoreChart score={85} />
           </View>
           <View style={styles.textWrapper}>
             <Text style={styles.title}>Lange Musik, hohes Risiko</Text>
@@ -76,26 +78,22 @@ export default function InfoKnowledgeScreen() {
         </CardFooter>
       </Card>
 
-      <InfoSectionHeader title="So laut ist dein Alltag">
-      </InfoSectionHeader>
+      {/* <TipsSectionHeader title="So laut ist dein Alltag">
+      </TipsSectionHeader>
 
       <StatCard value={<Text><Baby /></Text>} subtitle="dB" color="#007a7a" />
       <StatCard value={<Text><Tv /></Text>} subtitle="dB" color="#007a7a" />
       <StatCard value={<Text><MusicIcon /></Text>} subtitle="dB" color="#007a7a" />
       <StatCard value={<Text><Plane /></Text>} subtitle="dB" color="#007a7a" />
-      <StatCard value={<Text><Mic /></Text>} subtitle="dB" color="#007a7a" />
+      <StatCard value={<Text><Mic /></Text>} subtitle="dB" color="#007a7a" /> */}
 
-
-
-      <HighlightCard>
+      <HighlightCard style={styles.warningContainer}>
         <HighlightCardContent style={styles.topAlignedContainer}>
-          {/* Neues Wrapper-Styling, damit das Icon oben bleibt */}
           <View style={styles.iconTopWrapper}>
-            <HeadphonesIcon size={40} color="#007a7a" />
+            <HeadphonesIcon size={40} color="#9a3412" />
           </View>
           <View style={styles.textWrapper}>
-            <Text style={styles.title}>Gehörschäden sind meistens vermeidbar.</Text>
-            <Text style={styles.contentText}>
+            <Text style={styles.contentTextTipp}>
               60/60-Regel: Höre maximal 60% der Lautstärke und nicht länger als 60 Minuten am Stück – das schont dein Gehör langfristig.
             </Text>
           </View>
@@ -117,6 +115,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
+  warningContainer: {
+    borderRadius: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+    backgroundColor: '#fef3c7',
+  },
+  contentTextTipp: {
+
+    color: '#9a3412',
+    lineHeight: 22,
+    fontWeight: '500',
+  },
   topAlignedContainer: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -127,6 +138,8 @@ const styles = StyleSheet.create({
   iconTopWrapper: {
     width: 40,
     marginTop: 2,
+    marginRight: 8,
+    paddingLeft: 8,
   },
   scoreContainer: {
     flexDirection: 'row',
